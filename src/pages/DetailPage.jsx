@@ -1,9 +1,5 @@
-import { BrowserRouter } from 'react-router-dom';
-import { useState } from 'react'; // React에서 상태(스위치)를 관리하는 도구 추가
-import dumplingImg from './assets/dumpling.png';
-import ReportSection from './components/ReportSection';
-import Footer from './components/Footer';
-import ReportModal from './components/ReportModal'; // 모달 컴포넌트 추가
+import { Link } from 'react-router-dom';
+import dumplingImg from '../assets/dumpling.png';
 
 const categories = [
   {
@@ -116,199 +112,114 @@ const categories = [
   },
 ];
 
-function App() {
-  // 모달을 열고 닫는 스위치 역할을 하는 상태(State)입니다.
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+export default function MainPage() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-[#F6F7F8] font-sans flex flex-col items-center overflow-x-hidden">
-        <header className="w-full bg-[#F6F7F8] flex justify-center py-8">
-          <div className="w-full max-w-6xl flex items-center gap-12 px-6">
-            <div className="flex flex-col items-center shrink-0 ml-4">
-              <span className="text-4xl font-black text-[#01a7fb] tracking-tighter leading-none mb-1">SHRINK</span>
-              <span className="text-[10px] font-bold text-black tracking-[0.3em]">WATCH</span>
-            </div>
-            
-            <div className="flex-1 max-w-[800px] bg-[#E9ECEF] rounded-full px-6 py-4 flex items-center shadow-sm">
-              <span className="text-gray-500 mr-3">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
+    <div className="w-full max-w-6xl flex px-6 gap-10 mt-4 mb-16">
+      <aside className="w-[180px] shrink-0 pt-4 ml-4">
+        <div className="font-bold text-black mb-8 text-xl">카테고리</div>
+        <ul className="flex flex-col gap-6 text-[15px] font-medium text-gray-400">
+          {categories.map((category, index) => (
+            <li 
+              key={index} 
+              className={`flex items-center gap-4 cursor-pointer hover:text-[#01a7fb] transition-colors ${
+                index === 0 ? 'text-black font-bold' : ''
+              }`}
+            >
+              <span className={index === 0 ? 'text-[#01a7fb]' : 'text-gray-400'}>
+                {category.icon}
               </span>
-              <input
-                type="text"
-                placeholder="제품명이나 바코드 번호를 적어보세요."
-                className="bg-transparent w-full outline-none text-base placeholder-gray-500 text-gray-800"
-              />
+              {category.name}
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <main className="flex-1 min-w-0 flex flex-col gap-14">
+        <section className="bg-[#0A0A0A] rounded-[20px] p-8 text-white flex items-center border-[3px] border-[#01a7fb] h-[280px]">
+          <div className="flex flex-col shrink-0 h-full justify-center min-w-[280px]">
+            <div className="flex items-end gap-3 mb-6">
+              <h2 className="text-[26px] font-bold leading-none whitespace-nowrap tracking-tight">지갑 방어 계산기</h2>
+              <span className="text-[13px] text-gray-400 mb-0.5 whitespace-nowrap">
+                내가 자주 쓰는 상품의 <span className="text-[#01a7fb] font-bold">연간 물가상승률</span>
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[64px] font-black text-[#01a7fb] tracking-tighter leading-none mb-1">8%</span>
+              <span className="text-[26px] font-bold leading-none mt-2">23,000원</span>
+              <span className="text-[13px] text-gray-500 mt-2">작년보다 더 내고 있는 돈</span>
             </div>
           </div>
-        </header>
 
-        <div className="w-full max-w-6xl flex px-6 gap-10 mt-4 mb-16">
-          <aside className="w-[180px] shrink-0 pt-4 ml-4">
-            <div className="font-bold text-black mb-8 text-xl">카테고리</div>
-            <ul className="flex flex-col gap-6 text-[15px] font-medium text-gray-400">
-              {categories.map((category, index) => (
-                <li 
-                  key={index} 
-                  className={`flex items-center gap-4 cursor-pointer hover:text-[#01a7fb] transition-colors ${
-                    index === 0 ? 'text-black font-bold' : ''
-                  }`}
-                >
-                  <span className={index === 0 ? 'text-[#01a7fb]' : 'text-gray-400'}>
-                    {category.icon}
-                  </span>
-                  {category.name}
-                </li>
-              ))}
-            </ul>
-          </aside>
-
-          <main className="flex-1 min-w-0 flex flex-col gap-14">
-            <section className="bg-[#0A0A0A] rounded-[20px] p-8 text-white flex items-center border-[3px] border-[#01a7fb] h-[280px]">
-              <div className="flex flex-col shrink-0 h-full justify-center min-w-[280px]">
-                <div className="flex items-end gap-3 mb-6">
-                  <h2 className="text-[26px] font-bold leading-none whitespace-nowrap tracking-tight">지갑 방어 계산기</h2>
-                  <span className="text-[13px] text-gray-400 mb-0.5 whitespace-nowrap">
-                    내가 자주 쓰는 상품의 <span className="text-[#01a7fb] font-bold">연간 물가상승률</span>
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[64px] font-black text-[#01a7fb] tracking-tighter leading-none mb-1">8%</span>
-                  <span className="text-[26px] font-bold leading-none mt-2">23,000원</span>
-                  <span className="text-[13px] text-gray-500 mt-2">작년보다 더 내고 있는 돈</span>
-                </div>
-              </div>
-
-              <div className="flex gap-4 overflow-x-auto flex-1 pl-4 h-full items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="bg-white rounded-xl p-5 w-[160px] shrink-0 flex flex-col h-[180px] shadow-sm">
-                    <span className="text-black font-bold text-[15px] leading-snug mb-1 whitespace-nowrap">비비고 한우사<br/>골곰탕</span>
-                    <span className="text-gray-500 text-[13px]">8,200원</span>
-                    <div className="mt-auto">
-                      <span className="bg-black text-white text-[11px] px-2.5 py-1.5 rounded-md font-bold flex items-center w-fit gap-1">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M23 6l-9.5 9.5-5-5L1 18" />
-                          <path d="M17 6h6v6" />
-                        </svg>
-                        0%
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                
-                <div className="bg-[#2A2A2A] rounded-xl p-5 w-[160px] shrink-0 flex flex-col items-center justify-center cursor-pointer hover:bg-[#3A3A3A] transition-colors border border-[#444] h-[180px]">
-                  <span className="text-gray-400 text-3xl font-light mb-2">+</span>
-                  <span className="text-gray-400 text-[13px] font-bold text-center">자주 사는 물건<br/>추가하기</span>
-                </div>
-              </div>
-            </section>
-
-            <section className="flex flex-col">
-              <div className="flex justify-between items-end mb-6">
-                <h3 className="text-[22px] font-bold text-black tracking-tight">가격동결! 슈링크플레이션이 적은 추천 상품</h3>
-                <span className="text-[14px] text-gray-500 font-medium cursor-pointer hover:text-black">더보기 &gt;</span>
-              </div>
-              
-              <div className="grid grid-cols-5 gap-4">
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <div key={item} className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
-                    
-                    <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                      <div className="absolute top-3 left-3 bg-[#51555D] text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10">
-                        역대최저가
-                      </div>
-                      <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
-                    </div>
-
-                    <div className="flex flex-col">
-                      <span className="text-black font-bold text-[14px] leading-snug mb-1">국민냉동만두 10개입</span>
-                      <span className="text-black font-black text-[18px] mb-2">10,000원</span>
-                      
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <span className="text-gray-500 text-[12px]">100g당 468원</span>
-                        <span className="bg-black text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5">
-                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <path d="M23 6l-9.5 9.5-5-5L1 18" />
-                            <path d="M17 6h6v6" />
-                          </svg>
-                          0%
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <span className="text-gray-500 text-[12px] font-medium">4.7 (2,110)</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </main>
-        </div>
-        
-        {/* 버튼을 누르면 isModalOpen 스위치를 켜는(true) 기능을 넘겨줍니다 */}
-        <ReportSection onOpenModal={() => setIsModalOpen(true)} />
-
-        <section className="w-full max-w-6xl px-6 mt-20 mb-16 flex flex-col">
-          <div className="flex justify-between items-end mb-6">
-            <h3 className="text-[22px] font-bold text-black tracking-tight">최근 1년간 슈링크플레이션이 큰 상품</h3>
-            <span className="text-[14px] text-[#01a7fb] font-medium cursor-pointer hover:text-[#0092dd]">더보기 &gt;</span>
-          </div>
-          
-          <div className="grid grid-cols-6 gap-4">
-            {[
-              { rate: '1%' }, { rate: '2%' }, { rate: '4%' },
-              { rate: '5%' }, { rate: '4.2%' }, { rate: '2.1%' }
-            ].map((item, idx) => (
-              <div key={idx} className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
-                
-                <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                  <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
-                  <div className="absolute bottom-2 right-2 bg-[#fb3748] text-white text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 z-10 shadow-sm">
+          <div className="flex gap-4 overflow-x-auto flex-1 pl-4 h-full items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className="bg-white rounded-xl p-5 w-[160px] shrink-0 flex flex-col h-[180px] shadow-sm">
+                <Link to="/detail" className="text-black font-bold text-[15px] leading-snug mb-1 whitespace-nowrap hover:text-[#01a7fb] hover:underline cursor-pointer">
+                  비비고 한우사<br/>골곰탕
+                </Link>
+                <span className="text-gray-500 text-[13px]">8,200원</span>
+                <div className="mt-auto">
+                  <span className="bg-black text-white text-[11px] px-2.5 py-1.5 rounded-md font-bold flex items-center w-fit gap-1">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M23 6l-9.5 9.5-5-5L1 18" />
                       <path d="M17 6h6v6" />
                     </svg>
-                    {item.rate}
+                    0%
+                  </span>
+                </div>
+              </div>
+            ))}
+            
+            <div className="bg-[#2A2A2A] rounded-xl p-5 w-[160px] shrink-0 flex flex-col items-center justify-center cursor-pointer hover:bg-[#3A3A3A] transition-colors border border-[#444] h-[180px]">
+              <span className="text-gray-400 text-3xl font-light mb-2">+</span>
+              <span className="text-gray-400 text-[13px] font-bold text-center">자주 사는 물건<br/>추가하기</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="flex flex-col">
+          <div className="flex justify-between items-end mb-6">
+            <h3 className="text-[22px] font-bold text-black tracking-tight">가격동결! 슈링크플레이션이 적은 추천 상품</h3>
+            <span className="text-[14px] text-gray-500 font-medium cursor-pointer hover:text-black">더보기 &gt;</span>
+          </div>
+          
+          <div className="grid grid-cols-5 gap-4">
+            {[1, 2, 3, 4, 5].map((item) => (
+              <div key={item} className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
+                
+                <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                  <div className="absolute top-3 left-3 bg-[#51555D] text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10">
+                    역대최저가
                   </div>
+                  <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
                 </div>
 
                 <div className="flex flex-col">
-                  <span className="text-black font-bold text-[13px] leading-snug mb-1">국민냉동만두 10개입</span>
-                  <span className="text-black font-black text-[16px] mb-1">10,000원</span>
+                  <span className="text-black font-bold text-[14px] leading-snug mb-1">국민냉동만두 10개입</span>
+                  <span className="text-black font-black text-[18px] mb-2">10,000원</span>
                   
-                  <span className="text-gray-500 text-[11px] mb-2">100g당 468원</span>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="text-gray-500 text-[12px]">100g당 468원</span>
+                    <span className="bg-black text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M23 6l-9.5 9.5-5-5L1 18" />
+                        <path d="M17 6h6v6" />
+                      </svg>
+                      0%
+                    </span>
+                  </div>
                   
                   <div className="flex items-center gap-1">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
-                    <span className="text-gray-500 text-[11px] font-medium">4.7 (2,110)</span>
+                    <span className="text-gray-500 text-[12px] font-medium">4.7 (2,110)</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         </section>
-
-        <Footer />
-
-        {/* 🚀 우리가 만든 팝업창을 화면 맨 밑에 달아둡니다. */}
-        {/* 스위치 상태(isOpen)와 스위치를 끄는 기능(onClose)을 전달합니다. */}
-        <ReportModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-        />
-        
-      </div>
-    </BrowserRouter>
+      </main>
+    </div>
   );
 }
-
-export default App;
