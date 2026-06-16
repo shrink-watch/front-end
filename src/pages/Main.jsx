@@ -1,9 +1,7 @@
-import { BrowserRouter } from 'react-router-dom';
-import { useState } from 'react'; // React에서 상태(스위치)를 관리하는 도구 추가
-import dumplingImg from '../assets/dumpling.png';        // ../ 로 한 단계 올라가기
-import ReportSection from '../components/ReportSection'; // ../ 로 한 단계 올라가기
-import Footer from '../components/Footer';              // ../ 로 한 단계 올라가기
-import ReportModal from './components/ReportModal'; // 모달 컴포넌트 추가
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import dumplingImg from '../assets/dumpling.png';
+import ReportSection from '../components/ReportSection';
 
 const categories = [
   {
@@ -18,14 +16,7 @@ const categories = [
     name: '건강식품',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g clipPath="url(#clip0_245_461)">
-          <path d="M7.08333 7.0833L12.9167 12.9166M8.75 17.0833L17.0833 8.74996C17.4727 8.36836 17.7826 7.91334 17.9951 7.41123C18.2075 6.90912 18.3183 6.36987 18.3211 5.82467C18.3238 5.27946 18.2185 4.73913 18.0111 4.23489C17.8037 3.73066 17.4985 3.27254 17.1129 2.88702C16.7274 2.5015 16.2693 2.19623 15.7651 1.98886C15.2608 1.78149 14.7205 1.67613 14.1753 1.67889C13.6301 1.68164 13.0908 1.79245 12.5887 2.0049C12.0866 2.21735 11.6316 2.52723 11.25 2.91663L2.91667 11.25C2.52727 11.6316 2.21739 12.0866 2.00494 12.5887C1.79248 13.0908 1.68168 13.6301 1.67892 14.1753C1.67617 14.7205 1.78152 15.2608 1.98889 15.765C2.19626 16.2693 2.50153 16.7274 2.88706 17.1129C3.27258 17.4984 3.7307 17.8037 4.23493 18.0111C4.73916 18.2184 5.2795 18.3238 5.82471 18.321C6.36991 18.3183 6.90915 18.2075 7.41127 17.995C7.91338 17.7826 8.36839 17.4727 8.75 17.0833Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </g>
-        <defs>
-          <clipPath id="clip0_245_461">
-            <rect width="20" height="20" fill="white"/>
-          </clipPath>
-        </defs>
+        <g clipPath="url(#clip0_245_461)"><path d="M7.08333 7.0833L12.9167 12.9166M8.75 17.0833L17.0833 8.74996C17.4727 8.36836 17.7826 7.91334 17.9951 7.41123C18.2075 6.90912 18.3183 6.36987 18.3211 5.82467C18.3238 5.27946 18.2185 4.73913 18.0111 4.23489C17.8037 3.73066 17.4985 3.27254 17.1129 2.88702C16.7274 2.5015 16.2693 2.19623 15.7651 1.98886C15.2608 1.78149 14.7205 1.67613 14.1753 1.67889C13.6301 1.68164 13.0908 1.79245 12.5887 2.0049C12.0866 2.21735 11.6316 2.52723 11.25 2.91663L2.91667 11.25C2.52727 11.6316 2.21739 12.0866 2.00494 12.5887C1.79248 13.0908 1.68168 13.6301 1.67892 14.1753C1.67617 14.7205 1.78152 15.2608 1.98889 15.765C2.19626 16.2693 2.50153 16.7274 2.88706 17.1129C3.27258 17.4984 3.7307 17.8037 4.23493 18.0111C4.73916 18.2184 5.2795 18.3238 5.82471 18.321C6.36991 18.3183 6.90915 18.2075 7.41127 17.995C7.91338 17.7826 8.36839 17.4727 8.75 17.0833Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></g><defs><clipPath id="clip0_245_461"><rect width="20" height="20" fill="white"/></clipPath></defs>
       </svg>
     ),
   },
@@ -49,14 +40,7 @@ const categories = [
     name: '커피/차/다과',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g clipPath="url(#clip0_245_465)">
-          <path d="M7.08333 7.08329V7.09163M13.3333 12.9166V12.925M10 9.99996V10.0083M9.16667 14.1666V14.175M5.83333 11.6666V11.675M10 1.66663C8.35182 1.66663 6.74066 2.15537 5.37025 3.07105C3.99984 3.98672 2.93174 5.28821 2.30101 6.81093C1.67027 8.33365 1.50525 10.0092 1.82679 11.6257C2.14833 13.2422 2.94201 14.7271 4.10744 15.8925C5.27288 17.058 6.75774 17.8516 8.37425 18.1732C9.99076 18.4947 11.6663 18.3297 13.189 17.699C14.7117 17.0682 16.0132 16.0001 16.9289 14.6297C17.8446 13.2593 18.3333 11.6481 18.3333 9.99996C17.7542 10.1783 17.1374 10.1954 16.5492 10.0494C15.9611 9.90334 15.4239 9.59975 14.9954 9.17125C14.5669 8.74275 14.2633 8.20554 14.1173 7.61741C13.9713 7.02927 13.9883 6.41245 14.1667 5.83329C13.5875 6.01163 12.9707 6.0287 12.3826 5.88269C11.7944 5.73667 11.2572 5.43309 10.8287 5.00459C10.4002 4.57608 10.0966 4.03888 9.95061 3.45074C9.80459 2.8626 9.82167 2.24578 10 1.66663Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </g>
-        <defs>
-          <clipPath id="clip0_245_465">
-            <rect width="20" height="20" fill="white"/>
-          </clipPath>
-        </defs>
+        <g clipPath="url(#clip0_245_465)"><path d="M7.08333 7.08329V7.09163M13.3333 12.9166V12.925M10 9.99996V10.0083M9.16667 14.1666V14.175M5.83333 11.6666V11.675M10 1.66663C8.35182 1.66663 6.74066 2.15537 5.37025 3.07105C3.99984 3.98672 2.93174 5.28821 2.30101 6.81093C1.67027 8.33365 1.50525 10.0092 1.82679 11.6257C2.14833 13.2422 2.94201 14.7271 4.10744 15.8925C5.27288 17.058 6.75774 17.8516 8.37425 18.1732C9.99076 18.4947 11.6663 18.3297 13.189 17.699C14.7117 17.0682 16.0132 16.0001 16.9289 14.6297C17.8446 13.2593 18.3333 11.6481 18.3333 9.99996C17.7542 10.1783 17.1374 10.1954 16.5492 10.0494C15.9611 9.90334 15.4239 9.59975 14.9954 9.17125C14.5669 8.74275 14.2633 8.20554 14.1173 7.61741C13.9713 7.02927 13.9883 6.41245 14.1667 5.83329C13.5875 6.01163 12.9707 6.0287 12.3826 5.88269C11.7944 5.73667 11.2572 5.43309 10.8287 5.00459C10.4002 4.57608 10.0966 4.03888 9.95061 3.45074C9.80459 2.8626 9.82167 2.24578 10 1.66663Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></g><defs><clipPath id="clip0_245_465"><rect width="20" height="20" fill="white"/></clipPath></defs>
       </svg>
     ),
   },
@@ -64,14 +48,7 @@ const categories = [
     name: '우유/유제품',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g clipPath="url(#clip0_245_466)">
-          <path d="M8.33333 18.3333V11.6666M8.33333 11.6666L1.94666 7.40831M8.33333 11.6666L18.0958 5.80914M18.3333 11.6666C18.3333 11.9545 18.2588 12.2374 18.117 12.4878C17.9752 12.7383 17.771 12.9477 17.5242 13.0958L9.19083 18.0958C8.92036 18.2582 8.60935 18.3405 8.29396 18.3331C7.97857 18.3257 7.67175 18.229 7.40916 18.0541L2.40916 14.7208C2.1807 14.5686 1.99338 14.3623 1.86384 14.1202C1.73431 13.8782 1.66658 13.6078 1.66666 13.3333V8.33331C1.66666 8.0455 1.74119 7.76259 1.88299 7.51214C2.02479 7.26168 2.22904 7.05222 2.47583 6.90414L10.8092 1.90414C11.0796 1.74175 11.3906 1.65946 11.706 1.66684C12.0214 1.67421 12.3282 1.77095 12.5908 1.94581L17.5908 5.27914C17.8193 5.43137 18.0066 5.63768 18.1362 5.87974C18.2657 6.1218 18.3334 6.3921 18.3333 6.66664V11.6666Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </g>
-        <defs>
-          <clipPath id="clip0_245_466">
-            <rect width="20" height="20" fill="white"/>
-          </clipPath>
-        </defs>
+        <g clipPath="url(#clip0_245_466)"><path d="M8.33333 18.3333V11.6666M8.33333 11.6666L1.94666 7.40831M8.33333 11.6666L18.0958 5.80914M18.3333 11.6666C18.3333 11.9545 18.2588 12.2374 18.117 12.4878C17.9752 12.7383 17.771 12.9477 17.5242 13.0958L9.19083 18.0958C8.92036 18.2582 8.60935 18.3405 8.29396 18.3331C7.97857 18.3257 7.67175 18.229 7.40916 18.0541L2.40916 14.7208C2.1807 14.5686 1.99338 14.3623 1.86384 14.1202C1.73431 13.8782 1.66658 13.6078 1.66666 13.3333V8.33331C1.66666 8.0455 1.74119 7.76259 1.88299 7.51214C2.02479 7.26168 2.22904 7.05222 2.47583 6.90414L10.8092 1.90414C11.0796 1.74175 11.3906 1.65946 11.706 1.66684C12.0214 1.67421 12.3282 1.77095 12.5908 1.94581L17.5908 5.27914C17.8193 5.43137 18.0066 5.63768 18.1362 5.87974C18.2657 6.1218 18.3334 6.3921 18.3333 6.66664V11.6666Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></g><defs><clipPath id="clip0_245_466"><rect width="20" height="20" fill="white"/></clipPath></defs>
       </svg>
     ),
   },
@@ -103,212 +80,222 @@ const categories = [
     name: '건강용품',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g clipPath="url(#clip0_245_470)">
-          <path d="M3.33334 7.49996C2.89131 7.49996 2.46739 7.67555 2.15483 7.98811C1.84227 8.30068 1.66667 8.7246 1.66667 9.16663V10.8333C1.66667 11.2753 1.84227 11.6992 2.15483 12.0118C2.46739 12.3244 2.89131 12.5 3.33334 12.5H6.66667C6.88769 12.5 7.09965 12.5878 7.25593 12.744C7.41221 12.9003 7.5 13.1123 7.5 13.3333V16.6666C7.5 17.1087 7.6756 17.5326 7.98816 17.8451C8.30072 18.1577 8.72464 18.3333 9.16667 18.3333H10.8333C11.2754 18.3333 11.6993 18.1577 12.0118 17.8451C12.3244 17.5326 12.5 17.1087 12.5 16.6666V13.3333C12.5 13.1123 12.5878 12.9003 12.7441 12.744C12.9004 12.5878 13.1123 12.5 13.3333 12.5H16.6667C17.1087 12.5 17.5326 12.3244 17.8452 12.0118C18.1577 11.6992 18.3333 11.2753 18.3333 10.8333V9.16663C18.3333 8.7246 18.1577 8.30068 17.8452 7.98811C17.5326 7.67555 17.1087 7.49996 16.6667 7.49996H13.3333C13.1123 7.49996 12.9004 7.41216 12.7441 7.25588C12.5878 7.0996 12.5 6.88764 12.5 6.66663V3.33329C12.5 2.89127 12.3244 2.46734 12.0118 2.15478C11.6993 1.84222 11.2754 1.66663 10.8333 1.66663H9.16667C8.72464 1.66663 8.30072 1.84222 7.98816 2.15478C7.6756 2.46734 7.5 2.89127 7.5 3.33329V6.66663C7.5 6.88764 7.41221 7.0996 7.25593 7.25588C7.09965 7.41216 6.88769 7.49996 6.66667 7.49996H3.33334Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </g>
-        <defs>
-          <clipPath id="clip0_245_470">
-            <rect width="20" height="20" fill="white"/>
-          </clipPath>
-        </defs>
+        <g clipPath="url(#clip0_245_470)"><path d="M3.33334 7.49996C2.89131 7.49996 2.46739 7.67555 2.15483 7.98811C1.84227 8.30068 1.66667 8.7246 1.66667 9.16663V10.8333C1.66667 11.2753 1.84227 11.6992 2.15483 12.0118C2.46739 12.3244 2.89131 12.5 3.33334 12.5H6.66667C6.88769 12.5 7.09965 12.5878 7.25593 12.744C7.41221 12.9003 7.5 13.1123 7.5 13.3333V16.6666C7.5 17.1087 7.6756 17.5326 7.98816 17.8451C8.30072 18.1577 8.72464 18.3333 9.16667 18.3333H10.8333C11.2754 18.3333 11.6993 18.1577 12.0118 17.8451C12.3244 17.5326 12.5 17.1087 12.5 16.6666V13.3333C12.5 13.1123 12.5878 12.9003 12.7441 12.744C12.9004 12.5878 13.1123 12.5 13.3333 12.5H16.6667C17.1087 12.5 17.5326 12.3244 17.8452 12.0118C18.1577 11.6992 18.3333 11.2753 18.3333 10.8333V9.16663C18.3333 8.7246 18.1577 8.30068 17.8452 7.98811C17.5326 7.67555 17.1087 7.49996 16.6667 7.49996H13.3333C13.1123 7.49996 12.9004 7.41216 12.7441 7.25588C12.5878 7.0996 12.5 6.88764 12.5 6.66663V3.33329C12.5 2.89127 12.3244 2.46734 12.0118 2.15478C11.6993 1.84222 11.2754 1.66663 10.8333 1.66663H9.16667C8.72464 1.66663 8.30072 1.84222 7.98816 2.15478C7.6756 2.46734 7.5 2.89127 7.5 3.33329V6.66663C7.5 6.88764 7.41221 7.0996 7.25593 7.25588C7.09965 7.41216 6.88769 7.49996 6.66667 7.49996H3.33334Z" stroke="#51555D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></g><defs><clipPath id="clip0_245_470"><rect width="20" height="20" fill="white"/></clipPath></defs>
       </svg>
     ),
   },
 ];
 
-function Main() {
-  // 모달을 열고 닫는 스위치 역할을 하는 상태(State)입니다.
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const mockProducts = [
+  { id: 1, category: '냉동식품', name: '국민냉동만두 10개입', price: '10,000원', unitPrice: '100g당 468원', rating: '4.7 (2,110)', rate: 0, isLowest: true },
+  { id: 2, category: '냉동식품', name: '비비고 찐만두 5개입', price: '8,500원', unitPrice: '100g당 520원', rating: '4.5 (1,230)', rate: 0, isLowest: true },
+  { id: 3, category: '냉동식품', name: '풀무원 얇은피 만두 아주 길어지는 메뉴 이름 테스트', price: '9,200원', unitPrice: '100g당 490원', rating: '4.6 (3,200)', rate: 5, isLowest: true },
+  { id: 4, category: '냉동식품', name: '고기 가득 물만두', price: '8,900원', unitPrice: '100g당 550원', rating: '4.5 (820)', rate: 0, isLowest: true },
+  { id: 5, category: '냉동식품', name: '고향만두 1.2kg', price: '11,000원', unitPrice: '100g당 410원', rating: '4.8 (5,100)', rate: 12, isLowest: true }, 
+  { id: 6, category: '건강식품', name: '멀티 비타민 골드', price: '25,000원', unitPrice: '1정당 416원', rating: '4.9 (540)', rate: 0, isLowest: false },
+  { id: 7, category: '생수/음료/주류', name: '삼다수 2L x 6병', price: '6,200원', unitPrice: '1L당 516원', rating: '4.8 (12,500)', rate: 0, isLowest: true },
+];
+
+export default function Main({ searchQuery, onOpenModal, reports }) {
+  const [selectedCategory, setSelectedCategory] = useState('냉동식품');
+  const navigate = useNavigate();
+  
+  const [calculatorItems, setCalculatorItems] = useState([
+    { id: 1, name: '비비고 한우사골곰탕', price: 6200, rate: 0, loss: 0 },
+    { id: 2, name: '국민냉동만두 10개입 두줄짜리 이름 정렬 테스트', price: 10000, rate: 4, loss: 400 }, 
+    { id: 3, name: '삼다수 2L x 6병', price: 6200, rate: 0, loss: 0 }
+  ]);
+
+  const totalLoss = calculatorItems.reduce((sum, item) => sum + item.loss, 0);
+  const itemsWithRate = calculatorItems.filter(item => item.rate > 0);
+  const avgRate = itemsWithRate.length > 0 
+    ? Math.round(itemsWithRate.reduce((sum, item) => sum + item.rate, 0) / calculatorItems.length) 
+    : 0;
+
+  const handleDeleteItem = (id) => {
+    setCalculatorItems(calculatorItems.filter(item => item.id !== id));
+  };
+
+  const handleAddItem = () => {
+    const newItem = {
+      id: Date.now(),
+      name: '추가된 가짜 상품',
+      price: 5000,
+      rate: 8,
+      loss: 400
+    };
+    setCalculatorItems([...calculatorItems, newItem]);
+  };
+
+  const filteredProducts = mockProducts.filter((p) => {
+    const isMatchedCategory = p.category === selectedCategory;
+    const isMatchedSearch = p.name.includes(searchQuery);
+    return isMatchedCategory && isMatchedSearch;
+  });
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-[#F6F7F8] font-sans flex flex-col items-center overflow-x-hidden">
-        <header className="w-full bg-[#F6F7F8] flex justify-center py-8">
-          <div className="w-full max-w-6xl flex items-center gap-12 px-6">
-            <div className="flex flex-col items-center shrink-0 ml-4">
-              <span className="text-4xl font-black text-[#01a7fb] tracking-tighter leading-none mb-1">SHRINK</span>
-              <span className="text-[10px] font-bold text-black tracking-[0.3em]">WATCH</span>
-            </div>
-            
-            <div className="flex-1 max-w-[800px] bg-[#E9ECEF] rounded-full px-6 py-4 flex items-center shadow-sm">
-              <span className="text-gray-500 mr-3">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </span>
-              <input
-                type="text"
-                placeholder="제품명이나 바코드 번호를 적어보세요."
-                className="bg-transparent w-full outline-none text-base placeholder-gray-500 text-gray-800"
-              />
-            </div>
-          </div>
-        </header>
+    <>
+      <div className="w-full max-w-6xl flex px-6 gap-10 mt-4 mb-16 mx-auto">
+        <aside className="w-[180px] shrink-0 pt-4 ml-4">
+          <div className="font-bold text-black mb-8 text-xl">카테고리</div>
+          <ul className="flex flex-col gap-6 text-[15px] font-medium text-gray-400">
+            {categories.map((category, index) => (
+              <li 
+                key={index} 
+                onClick={() => setSelectedCategory(category.name)}
+                className={`flex items-center gap-4 cursor-pointer hover:text-[#01a7fb] transition-colors ${
+                  selectedCategory === category.name ? 'text-black font-bold' : ''
+                }`}
+              >
+                <span className={selectedCategory === category.name ? 'text-[#01a7fb]' : 'text-gray-400'}>
+                  {category.icon}
+                </span>
+                {category.name}
+              </li>
+            ))}
+          </ul>
+        </aside>
 
-        <div className="w-full max-w-6xl flex px-6 gap-10 mt-4 mb-16">
-          <aside className="w-[180px] shrink-0 pt-4 ml-4">
-            <div className="font-bold text-black mb-8 text-xl">카테고리</div>
-            <ul className="flex flex-col gap-6 text-[15px] font-medium text-gray-400">
-              {categories.map((category, index) => (
-                <li 
-                  key={index} 
-                  className={`flex items-center gap-4 cursor-pointer hover:text-[#01a7fb] transition-colors ${
-                    index === 0 ? 'text-black font-bold' : ''
-                  }`}
-                >
-                  <span className={index === 0 ? 'text-[#01a7fb]' : 'text-gray-400'}>
-                    {category.icon}
-                  </span>
-                  {category.name}
-                </li>
-              ))}
-            </ul>
-          </aside>
-
-          <main className="flex-1 min-w-0 flex flex-col gap-14">
-            <section className="bg-[#0A0A0A] rounded-[20px] p-8 text-white flex items-center border-[3px] border-[#01a7fb] h-[280px]">
-              <div className="flex flex-col shrink-0 h-full justify-center min-w-[280px]">
-                <div className="flex items-end gap-3 mb-6">
-                  <h2 className="text-[26px] font-bold leading-none whitespace-nowrap tracking-tight">지갑 방어 계산기</h2>
-                  <span className="text-[13px] text-gray-400 mb-0.5 whitespace-nowrap">
-                    내가 자주 쓰는 상품의 <span className="text-[#01a7fb] font-bold">연간 물가상승률</span>
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[64px] font-black text-[#01a7fb] tracking-tighter leading-none mb-1">8%</span>
-                  <span className="text-[26px] font-bold leading-none mt-2">23,000원</span>
-                  <span className="text-[13px] text-gray-500 mt-2">작년보다 더 내고 있는 돈</span>
-                </div>
+        <main className="flex-1 min-w-0 flex flex-col gap-14">
+          
+          <section className="bg-[#0A0A0A] rounded-[20px] p-8 text-white flex border-[3px] border-[#01a7fb] h-[280px] relative overflow-hidden">
+            <div className="flex flex-col shrink-0 h-full justify-center min-w-[250px] z-10 pr-6">
+              <div className="flex flex-col gap-1.5 mb-6">
+                <h2 className="text-[26px] font-bold leading-none whitespace-nowrap tracking-tight">지갑 방어 계산기</h2>
+                <span className="text-[13px] text-gray-400 whitespace-nowrap">
+                  내가 자주 쓰는 상품의 <span className="text-[#01a7fb] font-bold">연간 물가상승률</span>
+                </span>
               </div>
+              <div className="flex flex-col">
+                <span className="text-[64px] font-black text-[#01a7fb] tracking-tighter leading-none mb-1">{avgRate}%</span>
+                <span className="text-[26px] font-bold leading-none mt-2">{totalLoss.toLocaleString()}원</span>
+                <span className="text-[13px] text-gray-500 mt-2">작년보다 더 내고 있는 돈</span>
+              </div>
+            </div>
 
-              <div className="flex gap-4 overflow-x-auto flex-1 pl-4 h-full items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="bg-white rounded-xl p-5 w-[160px] shrink-0 flex flex-col h-[180px] shadow-sm">
-                    <span className="text-black font-bold text-[15px] leading-snug mb-1 whitespace-nowrap">비비고 한우사<br/>골곰탕</span>
-                    <span className="text-gray-500 text-[13px]">8,200원</span>
+            <div className="relative flex-1 h-full flex flex-col justify-end pb-2 overflow-hidden">
+              <div className="flex gap-4 overflow-x-auto w-full items-center pl-4 pr-32 pb-4 scroll-smooth">
+                {calculatorItems.map((item) => (
+                  <div key={item.id} className="relative bg-white rounded-xl p-3 w-[130px] shrink-0 flex flex-col h-[150px] shadow-sm group overflow-hidden cursor-pointer">
+                    <span className="text-black font-bold text-[13px] leading-snug mb-1 overflow-hidden h-[38px] block">
+                      {item.name}
+                    </span>
+                    <span className="text-gray-500 text-[11px]">{item.price.toLocaleString()}원</span>
                     <div className="mt-auto">
-                      <span className="bg-black text-white text-[11px] px-2.5 py-1.5 rounded-md font-bold flex items-center w-fit gap-1">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M23 6l-9.5 9.5-5-5L1 18" />
-                          <path d="M17 6h6v6" />
-                        </svg>
-                        0%
+                      <span className={`${item.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-2 py-1 rounded-md font-bold flex items-center w-fit gap-1 whitespace-nowrap`}>
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
+                        {item.rate}%
                       </span>
                     </div>
+                    <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <button onClick={() => handleDeleteItem(item.id)} className="bg-[#003B5C] text-white text-[11px] font-bold px-2.5 py-1.5 rounded flex items-center gap-1 shadow-md hover:bg-[#002B44]">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                        삭제하기
+                      </button>
+                    </div>
                   </div>
                 ))}
                 
-                <div className="bg-[#2A2A2A] rounded-xl p-5 w-[160px] shrink-0 flex flex-col items-center justify-center cursor-pointer hover:bg-[#3A3A3A] transition-colors border border-[#444] h-[180px]">
+                <div onClick={handleAddItem} className="bg-[#2A2A2A] rounded-xl p-3 w-[130px] shrink-0 flex flex-col items-center justify-center cursor-pointer hover:bg-[#3A3A3A] transition-colors border border-[#444] h-[150px]">
                   <span className="text-gray-400 text-3xl font-light mb-2">+</span>
-                  <span className="text-gray-400 text-[13px] font-bold text-center">자주 사는 물건<br/>추가하기</span>
+                  <span className="text-gray-400 text-[11px] font-bold text-center">자주 사는 물건<br/>추가하기</span>
                 </div>
               </div>
-            </section>
+              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#0A0A0A] to-transparent pointer-events-none z-20"></div>
+            </div>
+          </section>
 
-            <section className="flex flex-col">
-              <div className="flex justify-between items-end mb-6">
-                <h3 className="text-[22px] font-bold text-black tracking-tight">가격동결! 슈링크플레이션이 적은 추천 상품</h3>
-                <span className="text-[14px] text-gray-500 font-medium cursor-pointer hover:text-black">더보기 &gt;</span>
-              </div>
-              
-              <div className="grid grid-cols-5 gap-4">
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <div key={item} className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
-                    
+          <section className="flex flex-col">
+            <div className="flex justify-between items-end mb-6">
+              <h3 className="text-[22px] font-bold text-black tracking-tight">
+                {searchQuery ? `"${searchQuery}" 검색 결과` : `가격동결! 슈링크플레이션이 적은 추천 상품`}
+              </h3>
+              <span className="text-[14px] text-gray-500 font-medium cursor-pointer hover:text-black">더보기 &gt;</span>
+            </div>
+            
+            <div className="grid grid-cols-5 gap-4">
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((p) => (
+                  <div 
+                    key={p.id} 
+                    onClick={() => navigate(`/detail/${p.id}`)}
+                    className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+                  >
                     <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                      <div className="absolute top-3 left-3 bg-[#51555D] text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10">
-                        역대최저가
-                      </div>
+                      {p.isLowest && (
+                        <div className="absolute top-3 left-3 bg-[#51555D] text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10">
+                          역대최저가
+                        </div>
+                      )}
                       <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
                     </div>
-
                     <div className="flex flex-col">
-                      <span className="text-black font-bold text-[14px] leading-snug mb-1">국민냉동만두 10개입</span>
-                      <span className="text-black font-black text-[18px] mb-2">10,000원</span>
-                      
+                      <span className="text-black font-bold text-[14px] leading-snug mb-1 overflow-hidden h-[42px] block">
+                        {p.name}
+                      </span>
+                      <span className="text-black font-black text-[18px] mb-2">{p.price}</span>
                       <div className="flex items-center gap-1.5 mb-2">
-                        <span className="text-gray-500 text-[12px]">100g당 468원</span>
-                        <span className="bg-black text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5">
-                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <path d="M23 6l-9.5 9.5-5-5L1 18" />
-                            <path d="M17 6h6v6" />
-                          </svg>
-                          0%
+                        <span className="text-gray-500 text-[12px]">{p.unitPrice}</span>
+                        <span className={`${p.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5 whitespace-nowrap shrink-0`}>
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
+                          {p.rate}%
                         </span>
                       </div>
-                      
                       <div className="flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <span className="text-gray-500 text-[12px] font-medium">4.7 (2,110)</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <span className="text-gray-500 text-[12px] font-medium">{p.rating}</span>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
-          </main>
+                ))
+              ) : (
+                <div className="col-span-5 py-20 text-center text-gray-400">조건에 맞는 상품이 없습니다.</div>
+              )}
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <ReportSection onOpenModal={onOpenModal} reports={reports} />
+
+      <section className="w-full max-w-6xl px-6 mt-20 mb-16 flex flex-col mx-auto">
+        <div className="flex justify-between items-end mb-6">
+          <h3 className="text-[22px] font-bold text-black tracking-tight">최근 1년간 슈링크플레이션이 큰 상품</h3>
+          <span className="text-[14px] text-[#01a7fb] font-medium cursor-pointer hover:text-[#0092dd]">더보기 &gt;</span>
         </div>
         
-        {/* 버튼을 누르면 isModalOpen 스위치를 켜는(true) 기능을 넘겨줍니다 */}
-        <ReportSection onOpenModal={(onOpenModal) => setIsModalOpen(true)} />
-
-        <section className="w-full max-w-6xl px-6 mt-20 mb-16 flex flex-col">
-          <div className="flex justify-between items-end mb-6">
-            <h3 className="text-[22px] font-bold text-black tracking-tight">최근 1년간 슈링크플레이션이 큰 상품</h3>
-            <span className="text-[14px] text-[#01a7fb] font-medium cursor-pointer hover:text-[#0092dd]">더보기 &gt;</span>
-          </div>
-          
-          <div className="grid grid-cols-6 gap-4">
-            {[
-              { rate: '1%' }, { rate: '2%' }, { rate: '4%' },
-              { rate: '5%' }, { rate: '4.2%' }, { rate: '2.1%' }
-            ].map((item, idx) => (
-              <div key={idx} className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow">
-                
-                <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                  <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
-                  <div className="absolute bottom-2 right-2 bg-[#fb3748] text-white text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 z-10 shadow-sm">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M23 6l-9.5 9.5-5-5L1 18" />
-                      <path d="M17 6h6v6" />
-                    </svg>
-                    {item.rate}
-                  </div>
-                </div>
-
-                <div className="flex flex-col">
-                  <span className="text-black font-bold text-[13px] leading-snug mb-1">국민냉동만두 10개입</span>
-                  <span className="text-black font-black text-[16px] mb-1">10,000원</span>
-                  
-                  <span className="text-gray-500 text-[11px] mb-2">100g당 468원</span>
-                  
-                  <div className="flex items-center gap-1">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                    <span className="text-gray-500 text-[11px] font-medium">4.7 (2,110)</span>
-                  </div>
+        <div className="grid grid-cols-6 gap-4">
+          {[
+            { id: 101, rate: 1 }, { id: 102, rate: 2 }, { id: 103, rate: 4 },
+            { id: 104, rate: 5 }, { id: 105, rate: 4.2 }, { id: 106, rate: 2.1 }
+          ].map((item) => (
+            <div 
+              key={item.id} 
+              onClick={() => navigate(`/detail/${item.id}`)}
+              className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
+                <div className="absolute bottom-2 right-2 bg-[#fb3748] text-white text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 z-10 shadow-sm whitespace-nowrap">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
+                  {item.rate}%
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-
-        <Footer />
-
-        {/* 🚀 우리가 만든 팝업창을 화면 맨 밑에 달아둡니다. */}
-        {/* 스위치 상태(isOpen)와 스위치를 끄는 기능(onClose)을 전달합니다. */}
-        <ReportModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-        />
-        
-      </div>
-    </BrowserRouter>
+              <div className="flex flex-col">
+                <span className="text-black font-bold text-[13px] leading-snug mb-1 overflow-hidden h-[38px] block">
+                  국민냉동만두 10개입
+                </span>
+                <span className="text-black font-black text-[16px] mb-1">10,000원</span>
+                <span className="text-gray-500 text-[11px] mb-2">100g당 468원</span>
+                <div className="flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  <span className="text-gray-500 text-[11px] font-medium">4.7 (2,110)</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
-
-export default Main;

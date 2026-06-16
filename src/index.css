@@ -10,3 +10,8 @@
 body {
   background-color: #F6F7F8;
 }
+
+/* src/index.css 맨 아래에 추가 */
+::-webkit-scrollbar {
+  display: none;
+}
