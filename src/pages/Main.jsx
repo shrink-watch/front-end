@@ -96,7 +96,8 @@ const mockProducts = [
   { id: 7, category: '생수/음료/주류', name: '삼다수 2L x 6병', price: '6,200원', unitPrice: '1L당 516원', rating: '4.8 (12,500)', rate: 0, isLowest: true },
 ];
 
-export default function Main({ searchQuery, onOpenModal, reports }) {
+// ⭐️ 1. Main 컴포넌트에 onDeleteReport, onOpenEditModal 프롭스를 추가로 받습니다.
+export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport, onOpenEditModal }) {
   const [selectedCategory, setSelectedCategory] = useState('냉동식품');
   const navigate = useNavigate();
   
@@ -158,50 +159,55 @@ export default function Main({ searchQuery, onOpenModal, reports }) {
 
         <main className="flex-1 min-w-0 flex flex-col gap-14">
           
-          <section className="bg-[#0A0A0A] rounded-[20px] p-8 text-white flex border-[3px] border-[#01a7fb] h-[280px] relative overflow-hidden">
-            <div className="flex flex-col shrink-0 h-full justify-center min-w-[250px] z-10 pr-6">
-              <div className="flex flex-col gap-1.5 mb-6">
-                <h2 className="text-[26px] font-bold leading-none whitespace-nowrap tracking-tight">지갑 방어 계산기</h2>
-                <span className="text-[13px] text-gray-400 whitespace-nowrap">
-                  내가 자주 쓰는 상품의 <span className="text-[#01a7fb] font-bold">연간 물가상승률</span>
-                </span>
-              </div>
-              <div className="flex flex-col">
+          <section className="bg-[#0A0A0A] rounded-[20px] py-8 pl-8 pr-0 text-white flex flex-col border-[3px] border-[#01a7fb] h-[280px] relative overflow-hidden">
+            <div className="flex items-end gap-3 mb-6 z-10 pl-2">
+              <h2 className="text-[26px] font-bold leading-none tracking-tight">지갑 방어 계산기</h2>
+              <span className="text-[14px] text-gray-400 mb-[2px]">
+                내가 자주 쓰는 상품의 <span className="text-[#01a7fb] font-bold">연간 물가상승률</span>
+              </span>
+            </div>
+
+            <div className="flex flex-1 w-full items-center">
+              <div className="flex flex-col items-start shrink-0 min-w-[220px] z-10 pl-2">
                 <span className="text-[64px] font-black text-[#01a7fb] tracking-tighter leading-none mb-1">{avgRate}%</span>
                 <span className="text-[26px] font-bold leading-none mt-2">{totalLoss.toLocaleString()}원</span>
                 <span className="text-[13px] text-gray-500 mt-2">작년보다 더 내고 있는 돈</span>
               </div>
-            </div>
 
-            <div className="relative flex-1 h-full flex flex-col justify-end pb-2 overflow-hidden">
-              <div className="flex gap-4 overflow-x-auto w-full items-center pl-4 pr-32 pb-4 scroll-smooth">
-                {calculatorItems.map((item) => (
-                  <div key={item.id} className="relative bg-white rounded-xl p-3 w-[130px] shrink-0 flex flex-col h-[150px] shadow-sm group overflow-hidden cursor-pointer">
-                    <span className="text-black font-bold text-[13px] leading-snug mb-1 overflow-hidden h-[38px] block">
-                      {item.name}
-                    </span>
-                    <span className="text-gray-500 text-[11px]">{item.price.toLocaleString()}원</span>
-                    <div className="mt-auto">
-                      <span className={`${item.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-2 py-1 rounded-md font-bold flex items-center w-fit gap-1 whitespace-nowrap`}>
-                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
-                        {item.rate}%
+              <div className="relative flex-1 h-full flex flex-col justify-center overflow-hidden">
+                <div className="flex gap-2 overflow-x-auto w-full items-center pl-4 pb-2 scroll-smooth scrollbar-hide">
+                  {calculatorItems.map((item) => (
+                    <div key={item.id} className="relative bg-white rounded-[4px] p-[12px] w-[120px] shrink-0 flex flex-col h-[120px] shadow-sm group overflow-hidden cursor-pointer">
+                      <span className="text-black font-bold text-[12px] leading-snug mb-1 overflow-hidden h-[36px] line-clamp-2 block">
+                        {item.name}
                       </span>
+                      <span className="text-gray-500 text-[11px]">{item.price.toLocaleString()}원</span>
+                      <div className="mt-auto">
+                        <span className={`${item.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-2 py-1 rounded-md font-bold flex items-center w-fit gap-1 whitespace-nowrap`}>
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
+                          {item.rate}%
+                        </span>
+                      </div>
+                      <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                        <button onClick={() => handleDeleteItem(item.id)} className="bg-[#003B5C] text-white text-[11px] font-bold px-2.5 py-1.5 rounded-[4px] flex items-center gap-1 shadow-md hover:bg-[#CBD1DC] hover:text-[#1A1C1E] transition-colors">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                          삭제하기
+                        </button>
+                      </div>
                     </div>
-                    <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                      <button onClick={() => handleDeleteItem(item.id)} className="bg-[#003B5C] text-white text-[11px] font-bold px-2.5 py-1.5 rounded flex items-center gap-1 shadow-md hover:bg-[#002B44]">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
-                        삭제하기
-                      </button>
+                  ))}
+                  
+                  <div className="sticky right-0 z-30 flex items-center shrink-0 h-[120px] bg-[#0A0A0A] pl-2 pr-8">
+                    <div className="absolute inset-y-0 -left-6 w-6 bg-gradient-to-r from-transparent to-[#0A0A0A] pointer-events-none"></div>
+                    
+                    <div onClick={handleAddItem} className="bg-[#2A2A2A] rounded-[4px] p-[12px] w-[120px] flex flex-col items-center justify-center cursor-pointer hover:bg-[#CBD1DC] hover:text-[#1A1C1E] group transition-colors border border-[#444] h-[120px] relative z-10">
+                      <span className="text-gray-400 group-hover:text-[#1A1C1E] text-3xl font-light mb-2 transition-colors">+</span>
+                      <span className="text-gray-400 group-hover:text-[#1A1C1E] text-[11px] font-bold text-center transition-colors">자주 사는 물건<br/>추가하기</span>
                     </div>
                   </div>
-                ))}
-                
-                <div onClick={handleAddItem} className="bg-[#2A2A2A] rounded-xl p-3 w-[130px] shrink-0 flex flex-col items-center justify-center cursor-pointer hover:bg-[#3A3A3A] transition-colors border border-[#444] h-[150px]">
-                  <span className="text-gray-400 text-3xl font-light mb-2">+</span>
-                  <span className="text-gray-400 text-[11px] font-bold text-center">자주 사는 물건<br/>추가하기</span>
+
                 </div>
               </div>
-              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#0A0A0A] to-transparent pointer-events-none z-20"></div>
             </div>
           </section>
 
@@ -219,31 +225,31 @@ export default function Main({ searchQuery, onOpenModal, reports }) {
                   <div 
                     key={p.id} 
                     onClick={() => navigate(`/detail/${p.id}`)}
-                    className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+                    className="flex flex-col bg-white rounded-[8px] p-[12px] gap-[8px] shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
                   >
-                    <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                    <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-[4px] flex items-center justify-center overflow-hidden shrink-0">
                       {p.isLowest && (
-                        <div className="absolute top-3 left-3 bg-[#51555D] text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10">
+                        <div className="absolute top-2 left-2 bg-[#51555D] text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">
                           역대최저가
                         </div>
                       )}
                       <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-black font-bold text-[14px] leading-snug mb-1 overflow-hidden h-[42px] block">
+                    <div className="flex flex-col gap-[4px]">
+                      <span className="text-black font-bold text-[13px] leading-snug overflow-hidden h-[38px] line-clamp-2 block">
                         {p.name}
                       </span>
-                      <span className="text-black font-black text-[18px] mb-2">{p.price}</span>
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <span className="text-gray-500 text-[12px]">{p.unitPrice}</span>
-                        <span className={`${p.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-0.5 whitespace-nowrap shrink-0`}>
+                      <span className="text-black font-black text-[18px]">{p.price}</span>
+                      <div className="flex items-center gap-[4px]">
+                        <span className="text-gray-500 text-[11px]">{p.unitPrice}</span>
+                        <span className={`${p.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-1.5 py-0.5 rounded-[4px] font-bold flex items-center gap-0.5 whitespace-nowrap shrink-0`}>
                           <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
                           {p.rate}%
                         </span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-[4px]">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                        <span className="text-gray-500 text-[12px] font-medium">{p.rating}</span>
+                        <span className="text-gray-500 text-[11px] font-medium">{p.rating}</span>
                       </div>
                     </div>
                   </div>
@@ -256,7 +262,13 @@ export default function Main({ searchQuery, onOpenModal, reports }) {
         </main>
       </div>
 
-      <ReportSection onOpenModal={onOpenModal} reports={reports} />
+      {/* ⭐️ 2. ReportSection 컴포넌트에 App에서 넘겨준 함수들을 연결합니다 */}
+      <ReportSection 
+        onOpenModal={onOpenModal} 
+        reports={reports} 
+        onDeleteReport={onDeleteReport} 
+        onOpenEditModal={onOpenEditModal} 
+      />
 
       <section className="w-full max-w-6xl px-6 mt-20 mb-16 flex flex-col mx-auto">
         <div className="flex justify-between items-end mb-6">
@@ -272,22 +284,24 @@ export default function Main({ searchQuery, onOpenModal, reports }) {
             <div 
               key={item.id} 
               onClick={() => navigate(`/detail/${item.id}`)}
-              className="flex flex-col bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+              className="flex flex-col bg-white rounded-[8px] p-[12px] gap-[8px] shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
             >
-              <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+              <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-[4px] flex items-center justify-center overflow-hidden shrink-0">
                 <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
-                <div className="absolute bottom-2 right-2 bg-[#fb3748] text-white text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 z-10 shadow-sm whitespace-nowrap">
+                <div className="absolute bottom-2 right-2 bg-[#fb3748] text-white text-[11px] font-bold px-1.5 py-0.5 rounded-[4px] flex items-center gap-0.5 z-10 shadow-sm whitespace-nowrap">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
                   {item.rate}%
                 </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-black font-bold text-[13px] leading-snug mb-1 overflow-hidden h-[38px] block">
+              <div className="flex flex-col gap-[4px]">
+                <span className="text-black font-bold text-[13px] leading-snug overflow-hidden h-[38px] line-clamp-2 block">
                   국민냉동만두 10개입
                 </span>
-                <span className="text-black font-black text-[16px] mb-1">10,000원</span>
-                <span className="text-gray-500 text-[11px] mb-2">100g당 468원</span>
-                <div className="flex items-center gap-1">
+                <span className="text-black font-black text-[16px]">10,000원</span>
+                <div className="flex items-center gap-[4px]">
+                  <span className="text-gray-500 text-[11px]">100g당 468원</span>
+                </div>
+                <div className="flex items-center gap-[4px]">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                   <span className="text-gray-500 text-[11px] font-medium">4.7 (2,110)</span>
                 </div>

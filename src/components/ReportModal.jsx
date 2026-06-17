@@ -1,135 +1,132 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // ⭐️ useEffect 추가
 
-const profiles = [
-  { id: 'default', label: '[기본]', color: 'bg-gray-400' },
-  { id: 'profile1', label: '[프사1]', color: 'bg-gray-500' },
-  { id: 'profile2', label: '[프사2]', color: 'bg-gray-600' },
-  { id: 'profile3', label: '[프사3]', color: 'bg-gray-700' },
-  { id: 'profile4', label: '[프사4]', color: 'bg-gray-800' },
-  { id: 'profile5', label: '[프사5]', color: 'bg-gray-900' },
-];
+// 준비해주신 캐릭터 프로필 사진 5개 import
+import profile1 from '../assets/profile1.png';
+import profile2 from '../assets/profile2.png';
+import profile3 from '../assets/profile3.png';
+import profile4 from '../assets/profile4.png';
+import profile5 from '../assets/profile5.png';
 
-export default function ReportModal({ isOpen, onClose, onAddReport }) {
-  const [selectedProfile, setSelectedProfile] = useState('default');
-  const [formData, setFormData] = useState({
-    nickname: '',
-    productName: '',
-    shop: '',
-    oldVolume: '',
-    newVolume: '',
-    price: '',
-    content: ''
-  });
+// ⭐️ editingReport 프롭스 추가 (수정 중인 데이터)
+export default function ReportModal({ isOpen, onClose, onSubmit, editingReport }) {
+  const [selectedProfile, setSelectedProfile] = useState(0);
+  const profiles = [profile1, profile2, profile3, profile4, profile5];
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const [nickname, setNickname] = useState('');
+  const [password, setPassword] = useState('');
+  const [productName, setProductName] = useState('');
+  const [store, setStore] = useState('');
+  const [oldVolume, setOldVolume] = useState('');
+  const [newVolume, setNewVolume] = useState('');
+  const [price, setPrice] = useState('');
+  const [content, setContent] = useState('');
+
+  // ⭐️ [수정 모드 연결] editingReport 데이터가 바뀌면 (수정창이 열리면) 입력칸에 데이터 채워넣기
+  useEffect(() => {
+    if (editingReport && isOpen) {
+      // 1. 기존 데이터 채우기
+      setNickname(editingReport.nickname);
+      setPassword(editingReport.password || ''); // 비밀번호는 안 담겨왔으면 빈칸
+      setProductName(editingReport.productName);
+      setStore(editingReport.store || ''); // 구매처 안 담겨왔으면 빈칸
+      setOldVolume(editingReport.oldVolume);
+      setNewVolume(editingReport.newVolume);
+      setPrice(String(editingReport.price).replace(/,/g, '')); // 쉼표 제거하고 채우기
+      setContent(editingReport.content);
+      
+      // 2. 프로필 사진 인덱스 찾아서 맞추기
+      const profileIdx = profiles.findIndex(p => p === editingReport.profileImg);
+      setSelectedProfile(profileIdx !== -1 ? profileIdx : 0);
+    } else {
+      // 3. 새 글 작성 모드이거나 모달이 닫혔으면 입력칸 다 비우기
+      setNickname(''); setPassword(''); setProductName(''); setStore('');
+      setOldVolume(''); setNewVolume(''); setPrice(''); setContent('');
+      setSelectedProfile(0);
+    }
+  }, [editingReport, isOpen]); // ⭐️ 이 데이터들이 바뀌면 실행됨
+
+  const isFormValid = 
+    nickname.trim() !== '' && password.trim() !== '' && productName.trim() !== '' && 
+    oldVolume.trim() !== '' && newVolume.trim() !== '' && price.trim() !== '' && content.trim() !== '';
 
   const handleSubmit = () => {
-    // 🚀 감소율(%) 자동 계산 로직
-    const oldV = parseFloat(formData.oldVolume);
-    const newV = parseFloat(formData.newVolume);
-    let rate = 0;
-    if (oldV && newV && oldV > newV) {
-      rate = Math.round(((oldV - newV) / oldV) * 100);
-    }
+    if (!isFormValid) return; 
 
-    const selectedColor = profiles.find(p => p.id === selectedProfile)?.color || 'bg-gray-400';
-    
-    // 🚀 App.jsx 로 보낼 새 제보 객체 만들기
-    const newReport = {
-      id: Date.now(),
-      nickname: formData.nickname || '익명 사용자',
-      color: selectedColor,
-      productName: formData.productName || '미입력 상품',
-      oldVolume: formData.oldVolume || '0',
-      newVolume: formData.newVolume || '0',
-      price: formData.price || '0',
-      content: formData.content || '내용이 없습니다.',
-      time: '방금 전',
-      decreaseRate: rate
+    const reportData = {
+      nickname,
+      password, // 수정시 비밀번호 확인을 위해 이것도 부모로 같이 넘겨줍니다 (로컬용)
+      productName,
+      store,
+      oldVolume: Number(oldVolume),
+      newVolume: Number(newVolume),
+      decreaseRate: Math.round(((Number(oldVolume) - Number(newVolume)) / Number(oldVolume)) * 100),
+      price: Number(price).toLocaleString(),
+      content,
+      profileImg: profiles[selectedProfile],
     };
 
-    onAddReport(newReport); // 부모한테 전송!
-    
-    // 모달창 입력 데이터 초기화
-    setFormData({ nickname: '', productName: '', shop: '', oldVolume: '', newVolume: '', price: '', content: '' });
-    setSelectedProfile('default');
-    
-    alert("제보가 성공적으로 등록되었습니다!");
-    onClose();
+    // 부모 컴포넌트(App.jsx)의 통합 제출 함수 실행
+    if (onSubmit) {
+      onSubmit(reportData);
+    }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-2xl flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white w-[720px] rounded-[16px] p-8 flex flex-col shadow-xl">
         
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-800">제보하기</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <div className="flex justify-between items-center mb-[28px]">
+          {/* ⭐️ 제목 변경 */}
+          <h2 className="text-[24px] font-bold text-black shrinking-0">{editingReport ? '제보 수정하기' : '제보하기'}</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-black">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[75vh] flex flex-col gap-6">
-          <div className="flex items-center gap-4">
-            <div className={`w-14 h-14 rounded-full flex shrink-0 ${profiles.find(p => p.id === selectedProfile)?.color}`}></div>
-            <input type="text" name="nickname" value={formData.nickname} onChange={handleChange} placeholder="닉네임을 입력하세요" className="bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#01a7fb] focus:border-[#01a7fb] block w-48 p-2.5 outline-none" />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-bold text-gray-700">프로필 이미지 고르기</span>
-            <div className="flex gap-3">
-              {profiles.map((profile) => (
-                <div key={profile.id} onClick={() => setSelectedProfile(profile.id)} className={`flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer border-2 transition-all ${selectedProfile === profile.id ? 'border-[#01a7fb] bg-blue-50' : 'border-transparent hover:bg-gray-50'}`}>
-                  <div className={`w-12 h-12 rounded-full ${profile.color}`}></div>
-                  <span className="text-[11px] text-gray-600 font-medium">{profile.label}</span>
-                </div>
+        <div className="flex justify-between items-center mb-[28px]">
+          <div className="flex items-center gap-6">
+            <div className="w-[80px] h-[80px] rounded-full shrink-0 shadow-sm border border-gray-100 flex items-center justify-center overflow-hidden bg-white">
+              <img src={profiles[selectedProfile]} alt="대표 프로필" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex flex-wrap gap-2 w-[160px] items-center">
+              {profiles.map((img, idx) => (
+                <div key={idx} onClick={() => setSelectedProfile(idx)} className={`w-[44px] h-[44px] rounded-full cursor-pointer p-[2px] border-[2px] transition-all ${selectedProfile === idx ? 'border-[#01a7fb] bg-[#CDE8FF]' : 'border-transparent opacity-60 hover:opacity-100'}`}><img src={img} alt={`옵션 ${idx}`} className="w-full h-full rounded-full object-cover" /></div>
               ))}
             </div>
           </div>
-
-          <div className="flex flex-col gap-4 border-t border-gray-100 pt-6">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-bold text-gray-700 w-12">제품명</span>
-              <input type="text" name="productName" value={formData.productName} onChange={handleChange} placeholder="제품명이나 바코드 번호를 입력하세요." className="flex-1 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#01a7fb] focus:border-[#01a7fb] block p-2.5 outline-none" />
-            </div>
-
-            <div className="flex items-center gap-6 flex-wrap">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-bold text-gray-700 w-12">구매처</span>
-                <input type="text" name="shop" value={formData.shop} onChange={handleChange} placeholder="예: 쿠팡" className="w-28 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#01a7fb] focus:border-[#01a7fb] block p-2.5 outline-none" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-gray-700 mr-1">용량</span>
-                <input type="text" name="oldVolume" value={formData.oldVolume} onChange={handleChange} placeholder="과거" className="w-20 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#01a7fb] focus:border-[#01a7fb] block p-2.5 text-center outline-none" />
-                <span className="text-sm text-gray-500 font-medium">g</span>
-                <span className="text-gray-400 mx-1">→</span>
-                <input type="text" name="newVolume" value={formData.newVolume} onChange={handleChange} placeholder="현재" className="w-20 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#01a7fb] focus:border-[#01a7fb] block p-2.5 text-center outline-none" />
-                <span className="text-sm text-gray-500 font-medium">g</span>
-              </div>
-              <div className="flex items-center gap-3 ml-auto">
-                <span className="text-sm font-bold text-gray-700">가격</span>
-                <input type="text" name="price" value={formData.price} onChange={handleChange} placeholder="가격" className="w-28 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#01a7fb] focus:border-[#01a7fb] block p-2.5 text-right outline-none" />
-                <span className="text-sm text-gray-500 font-medium">원</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2 mt-2">
-              <span className="text-sm font-bold text-gray-700">제보 내용</span>
-              <textarea name="content" value={formData.content} onChange={handleChange} placeholder="양이 정말 줄어든 것 같아요. 포장지는 그대로인데 속이 비었네요..." className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-[#01a7fb] focus:border-[#01a7fb] block p-3 outline-none resize-none h-28"></textarea>
-            </div>
+          <div className="flex gap-4 items-center text-[13px] font-bold">
+            <div className="flex items-center gap-2">닉네임<input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-[90px] h-[32px] bg-[#F6F7F8] rounded-[4px] px-2 outline-none focus:ring-1 focus:ring-[#01a7fb]" /></div>
+            <div className="flex items-center gap-2">비밀번호<input type="password" placeholder="0000" value={password} onChange={(e) => setPassword(e.target.value)} className="w-[70px] h-[32px] bg-[#F6F7F8] rounded-[4px] px-2 outline-none focus:ring-1 focus:ring-[#01a7fb] placeholder:text-gray-300 text-center" /></div>
           </div>
         </div>
 
-        <div className="p-6 bg-gray-50 border-t border-gray-100">
-          <button onClick={handleSubmit} className="w-full bg-[#01a7fb] hover:bg-[#0092dd] transition-colors text-white font-bold rounded-lg text-base px-5 py-3.5 text-center">
-            제출하기
-          </button>
+        <div className="w-full h-[1px] bg-[#E5E7EB] mb-[28px]"></div>
+
+        <div className="flex flex-col gap-[20px] mb-[28px] text-[14px] font-bold">
+          <div className="flex items-center gap-4">제품명<input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-[240px] h-[36px] bg-[#F6F7F8] rounded-[4px] px-3 outline-none focus:ring-1 focus:ring-[#01a7fb]" /></div>
+          <div className="flex flex-wrap gap-x-6 gap-y-[20px] items-center">
+            구매처<input type="text" value={store} onChange={(e) => setStore(e.target.value)} className="w-[120px] h-[36px] bg-[#F6F7F8] rounded-[4px] px-3 outline-none focus:ring-1 focus:ring-[#01a7fb]" />
+            용량
+            <div className="flex items-center gap-2 shrink-0 font-bold text-[14px]">
+              <input type="number" value={oldVolume} onChange={(e) => setOldVolume(e.target.value)} className="w-[80px] h-[36px] bg-[#F6F7F8] rounded-[4px] px-2 text-[13px] outline-none text-center focus:ring-1 focus:ring-[#01a7fb]" />
+              <span className="text-[#01a7fb]">g</span> <span className="text-[#01a7fb] mx-1">→</span>
+              <input type="number" value={newVolume} onChange={(e) => setNewVolume(e.target.value)} className="w-[80px] h-[36px] bg-[#F6F7F8] rounded-[4px] px-2 text-[13px] outline-none text-center focus:ring-1 focus:ring-[#01a7fb]" />
+              <span className="text-[#01a7fb]">g</span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0 font-bold ml-auto">가격<input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="w-[100px] h-[36px] bg-[#F6F7F8] rounded-[4px] px-3 outline-none text-right focus:ring-1 focus:ring-[#01a7fb]" /><span className="text-[#01a7fb]">원</span></div>
+          </div>
+          <div className="flex flex-col gap-2">제보 내용<textarea placeholder="구체적인 제보 내용을 입력해 주세요." value={content} onChange={(e) => setContent(e.target.value)} className="w-full h-[120px] bg-[#F6F7F8] rounded-[4px] p-3 outline-none resize-none focus:ring-1 focus:ring-[#01a7fb] font-medium"></textarea></div>
         </div>
+
+        {/* ⭐️ 버튼 글씨 변경 */}
+        <button 
+          onClick={handleSubmit} disabled={!isFormValid}
+          className={`w-full h-[48px] font-bold text-[16px] rounded-[4px] transition-colors shrink-0 ${isFormValid ? 'bg-[#01A7FB] text-white hover:bg-[#0092dd]' : 'bg-[#9EA4AA] text-white cursor-not-allowed'}`}
+        >
+          {editingReport ? '수정하기' : '제출하기'}
+        </button>
 
       </div>
     </div>
