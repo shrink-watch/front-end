@@ -13,7 +13,7 @@ const initialReports = [
   { 
     id: 1, 
     nickname: '솜솜이', 
-    profileImg: Profile1, // ⭐️ 임시 색상(color) 대신 진짜 이미지를 기본값으로 지정
+    profileImg: profile1, // ⭐️ 임시 색상(color) 대신 진짜 이미지를 기본값으로 지정
     productName: '국민 냉동고기만두', 
     oldVolume: '400', 
     newVolume: '360', 
