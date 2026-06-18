@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-// 준비해주신 캐릭터 프로필 사진 5개 import
-import profile1 from '../assets/profile1.png';
-import profile2 from '../assets/profile2.png';
-import profile3 from '../assets/profile3.png';
-import profile4 from '../assets/profile4.png';
-import profile5 from '../assets/profile5.png';
+// ⭐️ 변수명과 파일명 모두 대문자(Profile)로 완벽하게 통일했습니다!
+import Profile1 from '../assets/Profile1.png';
+import Profile2 from '../assets/Profile2.png';
+import Profile3 from '../assets/Profile3.png';
+import Profile4 from '../assets/Profile4.png';
+import Profile5 from '../assets/Profile5.png';
 
 export default function ReportModal({ isOpen, onClose, onSubmit, editingReport }) {
   const [selectedProfile, setSelectedProfile] = useState(0);
-  const profiles = [profile1, profile2, profile3, profile4, profile5];
+  const profiles = [Profile1, Profile2, Profile3, Profile4, Profile5];
 
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
