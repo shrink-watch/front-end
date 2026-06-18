@@ -7,7 +7,7 @@ import Main from './pages/Main';
 import DetailPage from './pages/DetailPage';
 
 // ⭐️ 솜솜이 기본 프사용 이미지 미리 불러오기
-import profile1 from './assets/profile1.png';
+import profile1 from './assets/Profile1.png';
 
 const initialReports = [
   { 
