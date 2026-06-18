@@ -90,20 +90,28 @@ export const ItemRate = styled.div`
   font-size: 18px;
 `;
 
-export const BuyBtn = styled.div`
-  width: 221px;
-  height: 24px;
+// ⭐️ 피그마 규격에 맞춰 너비, 높이, 패딩을 수정한 버튼 스타일
+export const BuyBtn = styled.button`
+  width: 272px;
+  height: 56px;
+  box-sizing: border-box;
   display: flex;
   padding: 16px 24px;
   justify-content: center;
   align-items: center;
   border-radius: 4px;
   background: var(--Colors-Primary-400, #01A7FB);
+  border: none;
   cursor: pointer;
   color: #FFF;
   font-family: Pretendard;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #0092dd;
+  }
 `;
 
 function SelectedItem({ product }) {
@@ -135,7 +143,8 @@ function SelectedItem({ product }) {
           </ItemRate>
         </ItemInfo>
         
-        <BuyBtn onClick={handleCoupangClick}>최저가로 사러 가기</BuyBtn>
+        {/* ⭐️ 텍스트 수정 및 버튼 적용 */}
+        <BuyBtn onClick={handleCoupangClick}>쿠팡에서 최저가로 사러 가기</BuyBtn>
 
       </ItemInfoBox>
     </ItemContainer>

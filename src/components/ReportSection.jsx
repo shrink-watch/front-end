@@ -50,15 +50,16 @@ export default function ReportSection({ onOpenModal, reports = [], onDeleteRepor
                         <span className="font-bold">
                           {report.oldVolume}g <span className="text-red-500 font-normal mx-0.5">→</span> {report.newVolume}g
                         </span>
-                        {/* ⭐️ 뱃지 로직 복구 완료 */}
+                        {/* ⭐️ 삭제되었던 빨간색 감소율 뱃지 복구 완료! */}
                         {report.decreaseRate > 0 && (
-                          <span className="bg-[#fb3748] text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                          <span className="bg-[#fb3748] text-white text-[10px] font-bold px-1.5 py-0.5 rounded ml-1">
                             -{report.decreaseRate}% 용량 감소
                           </span>
                         )}
                       </div>
                     </div>
                     
+                    {/* 우측 상단: 가격 & 수정/삭제 버튼 */}
                     <div className="flex items-center gap-4 shrink-0">
                       <span className="font-black text-[18px]">{report.price}원</span>
                       <div className="flex items-center gap-3 border-l pl-4">
@@ -72,9 +73,10 @@ export default function ReportSection({ onOpenModal, reports = [], onDeleteRepor
                         </button>
                       </div>
                     </div>
+
                   </div>
-                  <p className="text-[13px] text-gray-700">{report.content}</p>
-                  <span className="text-[11px] text-gray-400">{report.time}</span>
+                  <p className="text-[13px] text-gray-700 mt-1">{report.content}</p>
+                  <span className="text-[11px] text-gray-400 mt-1">{report.time}</span>
                 </div>
               ))}
             </div>
