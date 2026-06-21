@@ -20,18 +20,19 @@ const Detail = () => {
         const response = await axios.get(`http://localhost:8080/api/products/${id}`);
         const data = response.data;
         
+        // 🔥 프론트엔드와 백엔드의 변수명 차이(스네이크/카멜 케이스)를 모두 방어하는 완벽한 맵핑!
         const mappedProduct = {
           id: data.id,
           name: data.name,
           category: data.categoryName,
-          imageUrl: data.image_url, 
+          imageUrl: data.imageUrl || data.image_url, 
           price: data.price.toLocaleString() + '원', 
-          unitPrice: data.unit_price_text,
+          unitPrice: data.unitPriceText || data.unit_price_text,
           rating: data.rating ? `${data.rating} (검증완료)` : '별점 없음', 
-          rate: data.inflation_rate || 0,
-          isLowest: data.is_detected, 
+          rate: data.inflationRate || data.inflation_rate || 0, // 0% 에러 해결!
+          isLowest: data.isDetected || data.is_detected, 
           chartData: data.chartData, 
-          alternativeProducts: data.alternativeProducts // 🔥 백엔드가 준 대안상품 데이터!
+          alternativeProducts: data.alternativeProducts
         };
 
         setProduct(mappedProduct);
@@ -58,8 +59,10 @@ const Detail = () => {
 
       <D.Body>
         <D.Contents>
+          {/* 상단 메인 상품 정보 */}
           <SelectedItem product={product} />
           
+          {/* 가격 변동 그래프 */}
           <Graph chartData={product.chartData} />
           
           <D.CommentBox>
@@ -72,7 +75,7 @@ const Detail = () => {
         <D.SideBar>
           <div className="SideBarTitle">착한 대안상품</div>
           <D.SideBarItemList>
-            {/* 🔥 여기서 백엔드 데이터를 반복문(map)으로 쫙 뿌려줍니다! */}
+            {/* 🔥 백엔드에서 받은 대안상품 데이터를 반복문으로 출력! */}
             {product.alternativeProducts && product.alternativeProducts.length > 0 ? (
               product.alternativeProducts.map((altItem, index) => (
                 <SideBarItems key={altItem.id || index} item={altItem} />

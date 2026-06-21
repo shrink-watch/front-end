@@ -98,7 +98,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
   const [rankingProducts, setRankingProducts] = useState([]);
 
   // ⭐️ 장바구니 총합 실시간 계산
-  const totalLoss = calculatorItems.reduce((sum, item) => sum + (item.loss || 0), 0);
+  const totalLoss = calculatorItems.reduce((sum, item) => sum + Math.round(item.price * (item.rate / 100)), 0);
   const itemsWithRate = calculatorItems.filter(item => item.rate > 0);
   const avgRate = itemsWithRate.length > 0
     ? Math.round(itemsWithRate.reduce((sum, item) => sum + item.rate, 0) / itemsWithRate.length)
