@@ -112,6 +112,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
         const mapped = res.data.map(p => ({
           id: p.id,
           name: p.name,
+          imageUrl: p.image_url,
           priceText: p.price.toLocaleString() + '원',
           price: p.price,
           unitPrice: p.unit_price_text,
