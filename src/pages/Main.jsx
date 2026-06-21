@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import dumplingImg from '../assets/dumpling.png';
 import ReportSection from '../components/ReportSection';
 
@@ -86,53 +87,92 @@ const categories = [
   },
 ];
 
-const mockProducts = [
-  { id: 1, category: '냉동식품', name: '국민냉동만두 10개입', price: '10,000원', unitPrice: '100g당 468원', rating: '4.7 (2,110)', rate: 0, isLowest: true },
-  { id: 2, category: '냉동식품', name: '비비고 찐만두 5개입', price: '8,500원', unitPrice: '100g당 520원', rating: '4.5 (1,230)', rate: 0, isLowest: true },
-  { id: 3, category: '냉동식품', name: '풀무원 얇은피 만두 아주 길어지는 메뉴 이름 테스트', price: '9,200원', unitPrice: '100g당 490원', rating: '4.6 (3,200)', rate: 5, isLowest: true },
-  { id: 4, category: '냉동식품', name: '고기 가득 물만두', price: '8,900원', unitPrice: '100g당 550원', rating: '4.5 (820)', rate: 0, isLowest: true },
-  { id: 5, category: '냉동식품', name: '고향만두 1.2kg', price: '11,000원', unitPrice: '100g당 410원', rating: '4.8 (5,100)', rate: 12, isLowest: true }, 
-  { id: 6, category: '건강식품', name: '멀티 비타민 골드', price: '25,000원', unitPrice: '1정당 416원', rating: '4.9 (540)', rate: 0, isLowest: false },
-  { id: 7, category: '생수/음료/주류', name: '삼다수 2L x 6병', price: '6,200원', unitPrice: '1L당 516원', rating: '4.8 (12,500)', rate: 0, isLowest: true },
-];
-
-// ⭐️ 1. Main 컴포넌트에 onDeleteReport, onOpenEditModal 프롭스를 추가로 받습니다.
 export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport, onOpenEditModal }) {
   const [selectedCategory, setSelectedCategory] = useState('냉동식품');
   const navigate = useNavigate();
-  
-  const [calculatorItems, setCalculatorItems] = useState([
-    { id: 1, name: '비비고 한우사골곰탕', price: 6200, rate: 0, loss: 0 },
-    { id: 2, name: '국민냉동만두 10개입 두줄짜리 이름 정렬 테스트', price: 10000, rate: 4, loss: 400 }, 
-    { id: 3, name: '삼다수 2L x 6병', price: 6200, rate: 0, loss: 0 }
-  ]);
 
-  const totalLoss = calculatorItems.reduce((sum, item) => sum + item.loss, 0);
+  // ⭐️ 텅 빈 장바구니에서 시작!
+  const [calculatorItems, setCalculatorItems] = useState([]);
+
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [rankingProducts, setRankingProducts] = useState([]);
+
+  // ⭐️ 장바구니 총합 실시간 계산
+  const totalLoss = calculatorItems.reduce((sum, item) => sum + (item.loss || 0), 0);
   const itemsWithRate = calculatorItems.filter(item => item.rate > 0);
-  const avgRate = itemsWithRate.length > 0 
-    ? Math.round(itemsWithRate.reduce((sum, item) => sum + item.rate, 0) / calculatorItems.length) 
+  const avgRate = itemsWithRate.length > 0
+    ? Math.round(itemsWithRate.reduce((sum, item) => sum + item.rate, 0) / itemsWithRate.length)
     : 0;
 
-  const handleDeleteItem = (id) => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const query = searchQuery ? searchQuery : selectedCategory;
+        const res = await axios.get(`http://localhost:8080/api/products/search?keyword=${query}`);
+        const mapped = res.data.map(p => ({
+          id: p.id,
+          name: p.name,
+          priceText: p.price.toLocaleString() + '원',
+          price: p.price,
+          unitPrice: p.unit_price_text,
+          rating: '검증완료',
+          rate: p.inflation_rate || 0,
+          loss: p.annual_damage_cost || 0,
+          isLowest: p.is_detected
+        }));
+        setFilteredProducts(mapped);
+      } catch (error) {
+        setFilteredProducts([]);
+      }
+    };
+    fetchProducts();
+  }, [searchQuery, selectedCategory]);
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const res = await axios.get('http://localhost:8080/api/products/search/ranking/capacity');
+        const mapped = res.data.slice(0, 6).map(p => ({
+          id: p.id,
+          name: p.name,
+          priceText: p.price.toLocaleString() + '원',
+          price: p.price,
+          unitPrice: p.unit_price_text,
+          rate: p.inflation_rate || 0,
+          loss: p.annual_damage_cost || 0
+        }));
+        setRankingProducts(mapped);
+      } catch (error) {
+        setRankingProducts([]);
+      }
+    };
+    fetchRanking();
+  }, []);
+
+  // ⭐️ [+ 계산기에 담기]를 눌렀을 때 실행되는 함수
+  const handleAddToCalculator = (e, product) => {
+    e.stopPropagation();
+    
+    if (calculatorItems.some(item => item.id === product.id)) {
+      alert("이미 계산기에 추가된 상품입니다!");
+      return;
+    }
+    
+    setCalculatorItems([...calculatorItems, product]);
+  };
+
+  const handleDeleteItem = (e, id) => {
+    e.stopPropagation();
     setCalculatorItems(calculatorItems.filter(item => item.id !== id));
   };
 
+  // ⭐️ [+ 자주 사는 물건 추가하기] 박스를 눌렀을 때 아래로 부드럽게 스크롤!
   const handleAddItem = () => {
-    const newItem = {
-      id: Date.now(),
-      name: '추가된 가짜 상품',
-      price: 5000,
-      rate: 8,
-      loss: 400
-    };
-    setCalculatorItems([...calculatorItems, newItem]);
+    const productSection = document.getElementById('product-section');
+    if (productSection) {
+      productSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
-
-  const filteredProducts = mockProducts.filter((p) => {
-    const isMatchedCategory = p.category === selectedCategory;
-    const isMatchedSearch = p.name.includes(searchQuery);
-    return isMatchedCategory && isMatchedSearch;
-  });
 
   return (
     <>
@@ -176,12 +216,19 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
 
               <div className="relative flex-1 h-full flex flex-col justify-center overflow-hidden">
                 <div className="flex gap-2 overflow-x-auto w-full items-center pl-4 pb-2 scroll-smooth scrollbar-hide">
+                  
+                  {calculatorItems.length === 0 && (
+                    <div className="text-gray-500 text-sm italic pr-10 flex items-center h-full">
+                      아래 목록에서 상품을 장바구니에 담아보세요!
+                    </div>
+                  )}
+
                   {calculatorItems.map((item) => (
                     <div key={item.id} className="relative bg-white rounded-[4px] p-[12px] w-[120px] shrink-0 flex flex-col h-[120px] shadow-sm group overflow-hidden cursor-pointer">
                       <span className="text-black font-bold text-[12px] leading-snug mb-1 overflow-hidden h-[36px] line-clamp-2 block">
                         {item.name}
                       </span>
-                      <span className="text-gray-500 text-[11px]">{item.price.toLocaleString()}원</span>
+                      <span className="text-gray-500 text-[11px]">{item.priceText}</span>
                       <div className="mt-auto">
                         <span className={`${item.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-2 py-1 rounded-md font-bold flex items-center w-fit gap-1 whitespace-nowrap`}>
                           <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
@@ -189,7 +236,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
                         </span>
                       </div>
                       <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                        <button onClick={() => handleDeleteItem(item.id)} className="bg-[#003B5C] text-white text-[11px] font-bold px-2.5 py-1.5 rounded-[4px] flex items-center gap-1 shadow-md hover:bg-[#CBD1DC] hover:text-[#1A1C1E] transition-colors">
+                        <button onClick={(e) => handleDeleteItem(e, item.id)} className="bg-[#003B5C] text-white text-[11px] font-bold px-2.5 py-1.5 rounded-[4px] flex items-center gap-1 shadow-md hover:bg-[#CBD1DC] hover:text-[#1A1C1E] transition-colors">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                           삭제하기
                         </button>
@@ -200,6 +247,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
                   <div className="sticky right-0 z-30 flex items-center shrink-0 h-[120px] bg-[#0A0A0A] pl-2 pr-8">
                     <div className="absolute inset-y-0 -left-6 w-6 bg-gradient-to-r from-transparent to-[#0A0A0A] pointer-events-none"></div>
                     
+                    {/* ⭐️ 아래로 부드럽게 스크롤하는 버튼 */}
                     <div onClick={handleAddItem} className="bg-[#2A2A2A] rounded-[4px] p-[12px] w-[120px] flex flex-col items-center justify-center cursor-pointer hover:bg-[#CBD1DC] hover:text-[#1A1C1E] group transition-colors border border-[#444] h-[120px] relative z-10">
                       <span className="text-gray-400 group-hover:text-[#1A1C1E] text-3xl font-light mb-2 transition-colors">+</span>
                       <span className="text-gray-400 group-hover:text-[#1A1C1E] text-[11px] font-bold text-center transition-colors">자주 사는 물건<br/>추가하기</span>
@@ -211,7 +259,8 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
             </div>
           </section>
 
-          <section className="flex flex-col">
+          {/* ⭐️ 자동 스크롤의 목적지가 되는 섹션 (id 추가됨) */}
+          <section id="product-section" className="flex flex-col">
             <div className="flex justify-between items-end mb-6">
               <h3 className="text-[22px] font-bold text-black tracking-tight">
                 {searchQuery ? `"${searchQuery}" 검색 결과` : `가격동결! 슈링크플레이션이 적은 추천 상품`}
@@ -225,7 +274,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
                   <div 
                     key={p.id} 
                     onClick={() => navigate(`/detail/${p.id}`)}
-                    className="flex flex-col bg-white rounded-[8px] p-[12px] gap-[8px] shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+                    className="flex flex-col bg-white rounded-[8px] p-[12px] gap-[8px] shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow relative group"
                   >
                     <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-[4px] flex items-center justify-center overflow-hidden shrink-0">
                       {p.isLowest && (
@@ -239,7 +288,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
                       <span className="text-black font-bold text-[13px] leading-snug overflow-hidden h-[38px] line-clamp-2 block">
                         {p.name}
                       </span>
-                      <span className="text-black font-black text-[18px]">{p.price}</span>
+                      <span className="text-black font-black text-[18px]">{p.priceText}</span>
                       <div className="flex items-center gap-[4px]">
                         <span className="text-gray-500 text-[11px]">{p.unitPrice}</span>
                         <span className={`${p.rate > 0 ? 'bg-[#fb3748]' : 'bg-black'} text-white text-[10px] px-1.5 py-0.5 rounded-[4px] font-bold flex items-center gap-0.5 whitespace-nowrap shrink-0`}>
@@ -252,6 +301,15 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
                         <span className="text-gray-500 text-[11px] font-medium">{p.rating}</span>
                       </div>
                     </div>
+
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[8px] z-20">
+                      <button 
+                        onClick={(e) => handleAddToCalculator(e, p)}
+                        className="bg-[#01a7fb] text-white font-bold px-4 py-2 rounded-lg shadow-lg hover:bg-[#0092dd] transition-colors"
+                      >
+                        + 계산기에 담기
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -262,7 +320,6 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
         </main>
       </div>
 
-      {/* ⭐️ 2. ReportSection 컴포넌트에 App에서 넘겨준 함수들을 연결합니다 */}
       <ReportSection 
         onOpenModal={onOpenModal} 
         reports={reports} 
@@ -277,14 +334,11 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
         </div>
         
         <div className="grid grid-cols-6 gap-4">
-          {[
-            { id: 101, rate: 1 }, { id: 102, rate: 2 }, { id: 103, rate: 4 },
-            { id: 104, rate: 5 }, { id: 105, rate: 4.2 }, { id: 106, rate: 2.1 }
-          ].map((item) => (
+          {rankingProducts.map((item) => (
             <div 
               key={item.id} 
               onClick={() => navigate(`/detail/${item.id}`)}
-              className="flex flex-col bg-white rounded-[8px] p-[12px] gap-[8px] shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+              className="flex flex-col bg-white rounded-[8px] p-[12px] gap-[8px] shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow relative group"
             >
               <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-[4px] flex items-center justify-center overflow-hidden shrink-0">
                 <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
@@ -295,16 +349,21 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
               </div>
               <div className="flex flex-col gap-[4px]">
                 <span className="text-black font-bold text-[13px] leading-snug overflow-hidden h-[38px] line-clamp-2 block">
-                  국민냉동만두 10개입
+                  {item.name}
                 </span>
-                <span className="text-black font-black text-[16px]">10,000원</span>
+                <span className="text-black font-black text-[16px]">{item.priceText}</span>
                 <div className="flex items-center gap-[4px]">
-                  <span className="text-gray-500 text-[11px]">100g당 468원</span>
+                  <span className="text-gray-500 text-[11px]">{item.unitPrice}</span>
                 </div>
-                <div className="flex items-center gap-[4px]">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  <span className="text-gray-500 text-[11px] font-medium">4.7 (2,110)</span>
-                </div>
+              </div>
+
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[8px] z-20">
+                <button 
+                  onClick={(e) => handleAddToCalculator(e, item)}
+                  className="bg-[#01a7fb] text-white font-bold px-4 py-2 rounded-lg shadow-lg hover:bg-[#0092dd] transition-colors"
+                >
+                  + 계산기에 담기
+                </button>
               </div>
             </div>
           ))}

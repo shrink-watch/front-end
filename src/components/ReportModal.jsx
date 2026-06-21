@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // ⭐️ axios 추가!
 
-// ⭐️ 변수명과 파일명 모두 대문자(Profile)로 완벽하게 통일했습니다!
 import Profile1 from '../assets/Profile1.png';
 import Profile2 from '../assets/Profile2.png';
 import Profile3 from '../assets/Profile3.png';
@@ -20,7 +20,6 @@ export default function ReportModal({ isOpen, onClose, onSubmit, editingReport }
   const [price, setPrice] = useState('');
   const [content, setContent] = useState('');
 
-  // ⭐️ 데이터 채우기 에러 방지 (기존 데이터가 숫자일 경우를 대비해 String으로 확실하게 변환)
   useEffect(() => {
     if (editingReport && isOpen) {
       setNickname(editingReport.nickname || '');
@@ -35,14 +34,12 @@ export default function ReportModal({ isOpen, onClose, onSubmit, editingReport }
       const profileIdx = profiles.findIndex(p => p === editingReport.profileImg);
       setSelectedProfile(profileIdx !== -1 ? profileIdx : 0);
     } else if (isOpen) {
-      // 새 글 작성 시 빈칸으로 초기화
       setNickname(''); setPassword(''); setProductName(''); setStore('');
       setOldVolume(''); setNewVolume(''); setPrice(''); setContent('');
       setSelectedProfile(0);
     }
   }, [editingReport, isOpen]);
 
-  // ⭐️ 하얀 화면(크래시) 에러 방지 (모든 값을 무조건 String으로 감싸서 trim 에러 원천 차단!)
   const isFormValid = 
     String(nickname).trim() !== '' && 
     String(password).trim() !== '' && 
@@ -52,23 +49,45 @@ export default function ReportModal({ isOpen, onClose, onSubmit, editingReport }
     String(price).trim() !== '' && 
     String(content).trim() !== '';
 
-  const handleSubmit = () => {
+  // ⭐️ 백엔드로 데이터를 쏘는 로직으로 변경
+  const handleSubmit = async () => {
     if (!isFormValid) return; 
 
-    const reportData = {
-      nickname,
-      password,
-      productName,
-      store,
-      oldVolume: Number(oldVolume),
-      newVolume: Number(newVolume),
-      decreaseRate: Math.round(((Number(oldVolume) - Number(newVolume)) / Number(oldVolume)) * 100),
-      price: Number(price).toLocaleString(),
-      content,
-      profileImg: profiles[selectedProfile],
-    };
+    // 수정 모드일 때는 아직 백엔드 API가 없으므로 기존 로직 유지
+    if (editingReport) {
+      const reportData = {
+        id: editingReport.id,
+        nickname, password, productName, store, content,
+        oldVolume: Number(oldVolume),
+        newVolume: Number(newVolume),
+        price: Number(price).toLocaleString(),
+        profileImg: profiles[selectedProfile],
+      };
+      if (onSubmit) onSubmit(reportData);
+      return;
+    }
 
-    if (onSubmit) onSubmit(reportData);
+    // ⭐️ 새 글 작성 시 백엔드 (POST /api/reports) 연동
+    try {
+      const payload = {
+        productName: productName,
+        content: content,
+        previousVolume: Number(oldVolume),
+        currentVolume: Number(newVolume),
+        price: Number(String(price).replace(/,/g, '')), // 콤마 제거 후 순수 숫자로 전송
+        store: store
+      };
+
+      const response = await axios.post('http://localhost:8080/api/reports', payload);
+
+      if (response.status === 201 || response.data.success) {
+        alert(response.data.message || '제보가 성공적으로 등록되었습니다! (관리자 승인 후 노출됩니다)');
+        if (onSubmit) onSubmit(); // 부모(App.jsx)에게 완료 알림 -> 모달 닫기 및 피드 새로고침용
+      }
+    } catch (error) {
+      console.error("제보 등록 에러:", error);
+      alert("제보 등록 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
   };
 
   if (!isOpen) return null;
