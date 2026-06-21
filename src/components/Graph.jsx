@@ -1,113 +1,113 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import styled from "styled-components";
 
-export const GraphContainer = styled.div`
+const GraphContainer = styled.div`
   width: 100%;
-  box-sizing: border-box; /* 패딩을 포함해서 너비 계산 */
-  height: 311px;
-  padding: 24px;
-  margin: 60px 0;
+  height: 360px;
+  background-color: #1A1C1E;
   border-radius: 12px;
-  background: var(--Colors-Neutral-1000, #0a0a0b);
-  overflow: hidden; /* 혹시라도 튀어나가는 요소 방지 */
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 32px;
 `;
 
-export const GraphTitle = styled.div`
-  width: 100%; /* 고정 픽셀(718px) 삭제하고 100%로 변경! */
-  height: 36px;
+const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #fff;
-  font-family: Pretendard;
-  font-size: 24px;
-  font-weight: 700;
+  margin-bottom: 24px;
 `;
 
-export const GraphSelectList = styled.div`
+const Title = styled.h3`
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+`;
+
+const ButtonGroup = styled.div`
   display: flex;
-  gap: 20px;
-  padding: 3px 10px;
-  position: relative;
-  color: var(--Colors-Neutral-300, #CBD1DC);
-  font-family: Pretendard;
-  font-size: 14px;
-  font-weight: 500;
+  gap: 8px;
 `;
 
-export const GraphSelect = styled.div`
-  padding: 3px 10px;
+const FilterBtn = styled.button`
+  background-color: ${props => props.active ? "white" : "transparent"};
+  color: ${props => props.active ? "black" : "white"};
+  border: 1px solid ${props => props.active ? "white" : "#51555D"};
   border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
   cursor: pointer;
-  transition: color 0.2s ease;
-  color: ${({ active }) => (active ? "#000" : "#CBD1DC")};
-  z-index: 1;
+  font-weight: 600;
 `;
 
-export const GraphSlider = styled.div`
-  position: absolute;
-  top: 3px;
-  height: calc(100% - 6px);
-  border-radius: 9999px;
-  background: var(--Colors-Neutral-100, #F6F7F8);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  z-index: 0;
-`;
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{ background: '#fff', padding: '8px', borderRadius: '4px', color: '#000', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        <p style={{ margin: 0, fontWeight: 'bold' }}>{label}</p>
+        <p style={{ margin: 0 }}>{payload[0].value.toLocaleString()}원</p>
+      </div>
+    );
+  }
+  return null;
+};
 
-export const GraphContent = styled.div`
-  width: 100%; /* 고정 픽셀 삭제 */
-  height: 254px;
-  margin-top: 20px;
-  background: #1a1a1a;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-`;
+const Graph = ({ chartData }) => {
+  const [range, setRange] = useState('3개월');
 
-// ... 아래 function Graph() 부분은 그대로 두시면 됩니다! ...
-
-function Graph() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
-  const btnRefs = useRef([]);
-
-  useEffect(() => {
-    const currentBtn = btnRefs.current[activeIndex];
-    if (currentBtn) {
-      const parentOffset = currentBtn.parentElement.getBoundingClientRect().left;
-      const btnRect = currentBtn.getBoundingClientRect();
-      setSliderStyle({
-        left: btnRect.left - parentOffset,
-        width: btnRect.width,
-      });
-    }
-  }, [activeIndex]);
+  // 백엔드 데이터가 없을 때를 대비한 안전장치
+  const dataToRender = chartData && chartData.length > 0 ? chartData : [
+    { date: '1월', unit_price: 8000 },
+    { date: '2월', unit_price: 8500 },
+    { date: '3월', unit_price: 10000 },
+  ];
 
   return (
     <GraphContainer>
-      <GraphTitle>
-        그래프
-        <GraphSelectList>
-          <GraphSlider style={sliderStyle} />
-            {["3개월", "6개월", "12개월"].map((label, idx) => (
-                <GraphSelect
-                    key={label}
-                    ref={(el) => (btnRefs.current[idx] = el)}
-                    active={activeIndex === idx}
-                    onClick={() => setActiveIndex(idx)}
-                    >{label}</GraphSelect>
-            ))}
-        </GraphSelectList>
-      </GraphTitle>
-      <GraphContent>
-        {activeIndex === 0 && "3개월 데이터"}
-        {activeIndex === 1 && "6개월 데이터"}
-        {activeIndex === 2 && "12개월 데이터"}
-      </GraphContent>
+      <Header>
+        <Title>그래프</Title>
+        <ButtonGroup>
+          <FilterBtn active={range === '3개월'} onClick={() => setRange('3개월')}>3개월</FilterBtn>
+          <FilterBtn active={range === '6개월'} onClick={() => setRange('6개월')}>6개월</FilterBtn>
+          <FilterBtn active={range === '12개월'} onClick={() => setRange('12개월')}>12개월</FilterBtn>
+        </ButtonGroup>
+      </Header>
+      <div style={{ flex: 1, width: '100%' }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={dataToRender}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+            <XAxis 
+                dataKey="date" 
+                stroke="#888" 
+                tick={{ fill: '#888', fontSize: 12 }} 
+                tickLine={false} 
+                axisLine={false} 
+            />
+            <YAxis 
+                stroke="#888" 
+                tick={{ fill: '#888', fontSize: 12 }} 
+                tickLine={false} 
+                axisLine={false} 
+                domain={['auto', 'auto']} 
+                tickFormatter={(val) => val.toLocaleString()} 
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Line 
+                type="monotone" 
+                dataKey="unit_price" 
+                stroke="#01A7FB" 
+                strokeWidth={3} 
+                dot={{ r: 4, fill: "#01A7FB", strokeWidth: 2, stroke: "#1A1C1E" }} 
+                activeDot={{ r: 6 }} 
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </GraphContainer>
   );
-}
+};
 
 export default Graph;
