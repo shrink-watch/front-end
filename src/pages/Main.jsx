@@ -343,7 +343,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
               className="flex flex-col bg-white rounded-[8px] p-[12px] gap-[8px] shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow relative group"
             >
               <div className="relative w-full aspect-square bg-[#F1F3F5] rounded-[4px] flex items-center justify-center overflow-hidden shrink-0">
-                <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
+                <img src={item.imageUrl || dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
                 <div className="absolute bottom-2 right-2 bg-[#fb3748] text-white text-[11px] font-bold px-1.5 py-0.5 rounded-[4px] flex items-center gap-0.5 z-10 shadow-sm whitespace-nowrap">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>
                   {item.rate}%
