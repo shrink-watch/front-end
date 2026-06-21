@@ -24,6 +24,7 @@ const Detail = () => {
           id: data.id,
           name: data.name,
           category: data.categoryName,
+          imageUrl: data.image_url,
           price: data.price.toLocaleString() + '원',
           unitPrice: data.unit_price_text,
           rating: data.rating ? `${data.rating} (검증완료)` : '별점 없음',

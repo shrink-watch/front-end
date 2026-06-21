@@ -124,7 +124,7 @@ function SelectedItem({ product }) {
   return (
     <ItemContainer>
       <ItemImg>
-        <img src={dumplingImg} alt="product" className="w-[360px] h-[360px] rounded-lg object-cover" />
+        <img src={product.imageUrl || dumplingImg} alt="product" className="w-[360px] h-[360px] rounded-lg object-cover" />
         {product.isLowest && <ImageOverlay>역대 최저가</ImageOverlay>}
       </ItemImg>
       <ItemInfoBox>
