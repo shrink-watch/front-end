@@ -24,20 +24,20 @@ const Detail = () => {
           id: data.id,
           name: data.name,
           category: data.categoryName,
-          imageUrl: data.image_url,
-          price: data.price.toLocaleString() + '원',
+          imageUrl: data.image_url, 
+          price: data.price.toLocaleString() + '원', 
           unitPrice: data.unit_price_text,
-          rating: data.rating ? `${data.rating} (검증완료)` : '별점 없음',
+          rating: data.rating ? `${data.rating} (검증완료)` : '별점 없음', 
           rate: data.inflation_rate || 0,
-          isLowest: data.is_detected,
-          chartData: data.chartData,
-          alternativeProducts: data.alternativeProducts
+          isLowest: data.is_detected, 
+          chartData: data.chartData, 
+          alternativeProducts: data.alternativeProducts // 🔥 백엔드가 준 대안상품 데이터!
         };
 
         setProduct(mappedProduct);
         setLoading(false);
       } catch (error) {
-        console.error(error);
+        console.error("상품 상세 정보를 불러오는 데 실패했습니다.", error);
         setLoading(false);
       }
     };
@@ -72,9 +72,16 @@ const Detail = () => {
         <D.SideBar>
           <div className="SideBarTitle">착한 대안상품</div>
           <D.SideBarItemList>
-            <SideBarItems />
-            <SideBarItems />
-            <SideBarItems />
+            {/* 🔥 여기서 백엔드 데이터를 반복문(map)으로 쫙 뿌려줍니다! */}
+            {product.alternativeProducts && product.alternativeProducts.length > 0 ? (
+              product.alternativeProducts.map((altItem, index) => (
+                <SideBarItems key={altItem.id || index} item={altItem} />
+              ))
+            ) : (
+              <div className="w-full text-center py-10 text-gray-400 text-sm font-medium bg-[#F8F9FA] rounded-lg mt-2">
+                현재 등록된 착한 대안상품이 없습니다.
+              </div>
+            )}
           </D.SideBarItemList>
         </D.SideBar>
       </D.Body>
