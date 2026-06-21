@@ -135,6 +135,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
         const mapped = res.data.slice(0, 6).map(p => ({
           id: p.id,
           name: p.name,
+          imageUrl: p.image_url,
           priceText: p.price.toLocaleString() + '원',
           price: p.price,
           unitPrice: p.unit_price_text,
@@ -282,7 +283,7 @@ export default function Main({ searchQuery, onOpenModal, reports, onDeleteReport
                           역대최저가
                         </div>
                       )}
-                      <img src={dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
+                      <img src={p.imageUrl || dumplingImg} alt="상품 이미지" className="w-[85%] h-[85%] object-cover drop-shadow-md" />
                     </div>
                     <div className="flex flex-col gap-[4px]">
                       <span className="text-black font-bold text-[13px] leading-snug overflow-hidden h-[38px] line-clamp-2 block">
